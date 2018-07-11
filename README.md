@@ -1,8 +1,7 @@
 <p align="center"><img src="assets/logos/128x128.png">
  <h1 align="center">Cannon</h1>
   <p align="center">
-    Cannon is a State Machine implementation for Smalltalk. It works on top of the graphs provided by [Mole](https://github.com/ba-st/Mole).
-
+    Cannon is a State Machine implementation for Smalltalk.
     <br>
     <a href="docs/"><strong>Explore the docs »</strong></a>
     <br>
