@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/logos/128x128.png">
+<p align="center"><img src="assets/logos/128.png">
  <h1 align="center">Cannon</h1>
   <p align="center">
     Cannon is a State Machine implementation for Smalltalk.
@@ -37,3 +37,6 @@ To load the project in a Pharo image, or declare it as a dependency of your own 
 ## Contributing
 
 Check the [Contribution Guidelines](CONTRIBUTING.md)
+
+---
+<small><a href="https://icons8.com">Icon pack by Icons8</a></small>
