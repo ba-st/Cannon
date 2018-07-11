@@ -37,3 +37,6 @@ To load the project in a Pharo image, or declare it as a dependency of your own 
 ## Contributing
 
 Check the [Contribution Guidelines](CONTRIBUTING.md)
+
+---
+<small><a href="https://icons8.com">Icon pack by Icons8</a></small>
