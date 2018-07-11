@@ -17,7 +17,7 @@ before_deploy:
   - zip -q "${TRAVIS_BRANCH}-${TRAVIS_SMALLTALK_VERSION}.zip" "Cannon.image" "Cannon.changes"
 deploy:
   provider: releases
-api_key:
+  api_key:
     secure: dn1BIwY7Ih+tiJW5Ka3r14c4g/PhZme1CV0toNeNHCGZJHQ8Cjs7TPJV6w6m2+I6g+6zL8nuk0ZCtBVxSIbipSp4f70NDi/iAzA507Z7I4M0YPt7HYLazOw3zh3XwMExl+/9k70C7gDzSJho85gr4nNG8SY2quapKnl46L2ZJtS4c99FaFX66FCU8Qr2Otd7LPL1kGiOiHn0LoYgP9lQ9yxfkoKCIrVq1+pV/L5tIKOYeA8uzwUV7mSizVvjvCWlQISpGvntDrznzZy0UHi5l6T3lDGDe9RROXX8MZstvIyGL1mUt4gkaTv7vLjT4Zp2gqNchL+eGhA05iQc8glMMwVn366m4Nha8IKoPbS2OtwUg30y6giBghBan4aRbAF3j/UA2Aj2fhhFH/a1fZ521ODnvt74XnMRHMs6rRoVps5/CMUjNBq0idgHrZsGOr7WbUrJdAf8Bn+a7iXtBo5u6m4mk4dRfHCpylR4vzudM56frwrHS/2ihRV1xqFY6g9qcGg8DHcS8jtqIZ1NgPsHCafuwiMyunscJitDj1eDr8vck646uOWvTyNoTH5lXzWGU4jmD0ggCHx5gxEW8CphDU0zyIH83ovjq53fKd0O4meTXBzYHeBtlhy1mLEJq7TjHY5bHsGWog1d9tDeEdBy9myNbSLtbjidVNochlWeyF4=
   file: "${TRAVIS_BRANCH}-${TRAVIS_SMALLTALK_VERSION}.zip"
   skip_cleanup: true
