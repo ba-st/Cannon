@@ -1,3 +1,6 @@
+"
+I'm the baseline of Cannon
+"
 Class {
 	#name : #BaselineOfCannon,
 	#superclass : #BaselineOf,
