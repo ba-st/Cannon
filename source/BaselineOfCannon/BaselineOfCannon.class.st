@@ -17,12 +17,14 @@ BaselineOfCannon >> baseline: spec [
 			self setUpDependencies: spec.
 
 			spec
-				package: 'Cannon' with: [ spec requires: #('Buoy' 'Mole') ];
-				package: 'Cannon-Tests' with: [ spec requires: 'Cannon' ].
+				package: 'Cannon-StateMachine' with: [ spec requires: #('Buoy' 'Mole') ];
+				package: 'Cannon-Workflow' with: [ spec requires: #('Cannon-StateMachine') ];
+				package: 'Cannon-StateMachine-Tests' with: [ spec requires: 'Cannon-StateMachine' ];
+				package: 'Cannon-Workflow-Tests' with: [ spec requires: 'Cannon-Workflow' ].
 
 			spec
-				group: 'Deployment' with: #('Cannon');
-				group: 'Development' with: #('Cannon-Tests');
+				group: 'Deployment' with: #('Cannon-StateMachine' 'Cannon-Workflow');
+				group: 'Development' with: #('Cannon-StateMachine-Tests' 'Cannon-Workflow-Tests');
 				group: 'default' with: #('Deployment') ]
 ]
 

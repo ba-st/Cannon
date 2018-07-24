@@ -9,7 +9,7 @@ Class {
 		'entryCommand',
 		'exitCommand'
 	],
-	#category : #Cannon
+	#category : #'Cannon-StateMachine-Cannon-StateMachine'
 }
 
 { #category : #'instance creation' }

@@ -4,7 +4,7 @@ A manual trigger is never activated. The transition must be executed explicitly 
 Class {
 	#name : #ManualTransitionTrigger,
 	#superclass : #TransitionTrigger,
-	#category : #Cannon
+	#category : #'Cannon-StateMachine-Cannon-StateMachine'
 }
 
 { #category : #testing }

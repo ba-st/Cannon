@@ -4,7 +4,7 @@ A ManualTransitionTriggerTest is a test class for testing the behavior of Manual
 Class {
 	#name : #ManualTransitionTriggerTest,
 	#superclass : #TestCase,
-	#category : #'Cannon-Tests'
+	#category : #'Cannon-StateMachine-Tests'
 }
 
 { #category : #tests }

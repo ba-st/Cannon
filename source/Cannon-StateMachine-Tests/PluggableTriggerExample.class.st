@@ -7,7 +7,7 @@ Class {
 	#instVars : [
 		'activationBlock'
 	],
-	#category : #'Cannon-Tests'
+	#category : #'Cannon-StateMachine-Tests'
 }
 
 { #category : #'instance creation' }

@@ -7,7 +7,7 @@ Class {
 	#instVars : [
 		'stream'
 	],
-	#category : #'Cannon-Tests'
+	#category : #'Cannon-StateMachine-Tests'
 }
 
 { #category : #'instance creation' }
@@ -25,5 +25,5 @@ TransitionConditionExample >> initializeReadingFrom: aStream [
 { #category : #testing }
 TransitionConditionExample >> isSatisfiedBy: aContext [
 
-	^ stream contents beginsWith: 'Entering A<r>' expandMacros
+	^ stream contents beginsWith: 'Ready<r>' expandMacros
 ]

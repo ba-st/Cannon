@@ -4,7 +4,7 @@ A StateSpecificationTest is a test class for testing the behavior of StateSpecif
 Class {
 	#name : #StateSpecificationTest,
 	#superclass : #TestCase,
-	#category : #'Cannon-Tests'
+	#category : #'Cannon-StateMachine-Tests'
 }
 
 { #category : #tests }

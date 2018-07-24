@@ -2,25 +2,26 @@
 A StateMachineBuilderTest is a test class for testing the behavior of StateMachineBuilder
 "
 Class {
-	#name : #StateMachineBuilderTest,
+	#name : #StateMachineSpecificationBuilderTest,
 	#superclass : #TestCase,
-	#category : #'Cannon-Tests'
+	#category : #'Cannon-StateMachine-Tests'
 }
 
 { #category : #'private - processing' }
-StateMachineBuilderTest >> applyOnlyTransitionOf: machine [
+StateMachineSpecificationBuilderTest >> applyOnlyTransitionOf: machine [
 
-	StateMachineTransitioner new
+	TransitionApplicator new
 		apply: (self transitionsFromInitialStateOf: machine) anyOne
 		of: machine
+		within: StateMachineContextExample new
 ]
 
 { #category : #tests }
-StateMachineBuilderTest >> testAddStateNamed [
+StateMachineSpecificationBuilderTest >> testAddStateNamed [
 
 	| builder machine |
 
-	builder := StateMachineBuilder buildingContextWith: StateMachineContextExample.
+	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 	builder addTransitionFrom: 'A' to: 'A'.
 	machine := builder build.
@@ -29,13 +30,12 @@ StateMachineBuilderTest >> testAddStateNamed [
 ]
 
 { #category : #tests }
-StateMachineBuilderTest >> testAddStateNamedOnEntryOnExit [
+StateMachineSpecificationBuilderTest >> testAddStateNamedOnEntryOnExit [
 
 	| builder machine stream |
 
 	stream := WriteStream on: String new.
-	builder := StateMachineBuilder
-		buildingContextWith: StateMachineContextExample.
+	builder := StateMachineSpecificationBuilder new.
 	builder
 		addStateNamed: 'A'
 		onEntry: [ stream
@@ -49,19 +49,17 @@ StateMachineBuilderTest >> testAddStateNamedOnEntryOnExit [
 
 	self assert: machine initialState name equals: 'A'.
 
-	self assert: stream contents equals: 'Entering<r>' expandMacros.
+	self assert: stream contents isEmpty.
 	self applyOnlyTransitionOf: machine.
-	self
-		assert: stream contents
-		equals: 'Entering<r>Exiting<r>Entering<r>' expandMacros
+	self assert: stream contents equals: 'Exiting<r>Entering<r>' expandMacros
 ]
 
 { #category : #tests }
-StateMachineBuilderTest >> testAddTransitionFromTo [
+StateMachineSpecificationBuilderTest >> testAddTransitionFromTo [
 
 	| builder machine transitions stream |
 
-	builder := StateMachineBuilder buildingContextWith: StateMachineContextExample.
+	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 	builder addStateNamed: 'B'.
 	builder addTransitionFrom: 'A' to: 'B'.
@@ -82,12 +80,12 @@ StateMachineBuilderTest >> testAddTransitionFromTo [
 ]
 
 { #category : #tests }
-StateMachineBuilderTest >> testAddTransitionFromToAllowedWhenDoingTriggeredBy [
+StateMachineSpecificationBuilderTest >> testAddTransitionFromToAllowedWhenDoingTriggeredBy [
 
 	| builder machine transitions stream |
 
 	stream := WriteStream on: String new.
-	builder := StateMachineBuilder buildingContextWith: StateMachineContextExample.
+	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 	builder addStateNamed: 'B'.
 	builder addStateNamed: 'C'.
@@ -112,26 +110,27 @@ StateMachineBuilderTest >> testAddTransitionFromToAllowedWhenDoingTriggeredBy [
 
 	self assert: (self transitionsFromInitialStateOf: machine) isEmpty.
 
-	stream nextPutAll: 'Entering A<r>' expandMacros.
+	stream
+		nextPutAll: 'Ready';
+		cr.
 	transitions := self transitionsFromInitialStateOf: machine.
 	self
 		assert: transitions size equals: 1;
 		assert: transitions anyOne source name equals: 'A';
 		assert: transitions anyOne destination name equals: 'B'.
-	self assert: stream contents equals: 'Entering A<r>' expandMacros.
 
 	self applyOnlyTransitionOf: machine.
 	self
 		assert: stream contents
-		equals: 'Entering A<r>Manual...done<r>Auto...done<r>' expandMacros
+		equals: 'Ready<r>Manual...done<r>Auto...done<r>' expandMacros
 ]
 
 { #category : #tests }
-StateMachineBuilderTest >> testAddTransitionNamedFromTo [
+StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromTo [
 
 	| builder machine transitions stream |
 
-	builder := StateMachineBuilder buildingContextWith: StateMachineContextExample.
+	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 	builder addStateNamed: 'B'.
 	builder addTransitionNamed: 'only' from: 'A' to: 'B'.
@@ -152,12 +151,12 @@ StateMachineBuilderTest >> testAddTransitionNamedFromTo [
 ]
 
 { #category : #tests }
-StateMachineBuilderTest >> testAddTransitionNamedFromToAllowedWhenDoingTriggeredBy [
+StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromToAllowedWhenDoingTriggeredBy [
 
 	| builder machine transitions stream |
 
 	stream := WriteStream on: String new.
-	builder := StateMachineBuilder buildingContextWith: StateMachineContextExample.
+	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 	builder addStateNamed: 'B'.
 	builder addStateNamed: 'C'.
@@ -184,26 +183,27 @@ StateMachineBuilderTest >> testAddTransitionNamedFromToAllowedWhenDoingTriggered
 
 	self assert: (self transitionsFromInitialStateOf: machine) isEmpty.
 
-	stream nextPutAll: 'Entering A<r>' expandMacros.
+	stream
+		nextPutAll: 'Ready';
+		cr.
 	transitions := self transitionsFromInitialStateOf: machine.
 	self
 		assert: transitions size equals: 1;
 		assert: transitions anyOne source name equals: 'A';
 		assert: transitions anyOne destination name equals: 'B'.
-	self assert: stream contents equals: 'Entering A<r>' expandMacros.
 
 	self applyOnlyTransitionOf: machine.
 	self
 		assert: stream contents
-		equals: 'Entering A<r>Manual...done<r>Auto...done<r>' expandMacros
+		equals: 'Ready<r>Manual...done<r>Auto...done<r>' expandMacros
 ]
 
 { #category : #tests }
-StateMachineBuilderTest >> testAtLeastOneTransitionMustBeDefined [
+StateMachineSpecificationBuilderTest >> testAtLeastOneTransitionMustBeDefined [
 
 	| builder |
 
-	builder := StateMachineBuilder buildingContextWith: StateMachineContextExample.
+	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 
 	self
@@ -216,25 +216,11 @@ StateMachineBuilderTest >> testAtLeastOneTransitionMustBeDefined [
 ]
 
 { #category : #tests }
-StateMachineBuilderTest >> testBuiltContext [
-
-	| builder machine context |
-
-	builder := StateMachineBuilder buildingContextWith: StateMachineContextExample.
-	builder addStateNamed: 'A'.
-	builder addTransitionFrom: 'A' to: 'A'.
-	machine := builder build.
-
-	context := machine contextBuilder readyFor: machine.
-	self assert: (context isA: StateMachineContextExample)
-]
-
-{ #category : #tests }
-StateMachineBuilderTest >> testInitialStateMustBeDefinedFirst [
+StateMachineSpecificationBuilderTest >> testInitialStateMustBeDefinedFirst [
 
 	| builder |
 
-	builder := StateMachineBuilder buildingContextWith: StateMachineContextExample.
+	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 
 	self
@@ -245,11 +231,11 @@ StateMachineBuilderTest >> testInitialStateMustBeDefinedFirst [
 ]
 
 { #category : #tests }
-StateMachineBuilderTest >> testStatesInTransitionsMustBeDefined [
+StateMachineSpecificationBuilderTest >> testStatesInTransitionsMustBeDefined [
 
 	| builder |
 
-	builder := StateMachineBuilder buildingContextWith: StateMachineContextExample.
+	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 	builder declareAsInitialState: 'B'.
 
@@ -261,11 +247,11 @@ StateMachineBuilderTest >> testStatesInTransitionsMustBeDefined [
 ]
 
 { #category : #tests }
-StateMachineBuilderTest >> testThreeStatesAndTwoTransitions [
+StateMachineSpecificationBuilderTest >> testThreeStatesAndTwoTransitions [
 
-	| builder machine context transitions |
+	| builder machine transitions |
 
-	builder := StateMachineBuilder buildingContextWith: StateMachineContextExample.
+	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 	builder addStateNamed: 'B'.
 	builder addTransitionFrom: 'A' to: 'B'.
@@ -274,12 +260,11 @@ StateMachineBuilderTest >> testThreeStatesAndTwoTransitions [
 	builder declareAsInitialState: 'A'.
 	machine := builder build.
 
-	context := machine contextBuilder readyFor: machine.
-	self
-		assert: (context isA: StateMachineContextExample);
-		assert: machine initialState name equals: 'A'.
+	self assert: machine initialState name equals: 'A'.
 
-	transitions := machine transitionsFrom: machine initialState allowedWithin: context.
+	transitions := machine
+		transitionsFrom: machine initialState
+		allowedWithin: StateMachineContextExample new.
 	self
 		assert: transitions size equals: 1;
 		assert: transitions anyOne source name equals: 'A';
@@ -287,7 +272,7 @@ StateMachineBuilderTest >> testThreeStatesAndTwoTransitions [
 
 	transitions := machine
 		transitionsFrom: transitions anyOne destination
-		allowedWithin: context.
+		allowedWithin: StateMachineContextExample new.
 	self
 		assert: transitions size equals: 1;
 		assert: transitions anyOne source name equals: 'B';
@@ -295,11 +280,11 @@ StateMachineBuilderTest >> testThreeStatesAndTwoTransitions [
 ]
 
 { #category : #tests }
-StateMachineBuilderTest >> testWithMoreThanOneStateTheInitialStateMustBeDefined [
+StateMachineSpecificationBuilderTest >> testWithMoreThanOneStateTheInitialStateMustBeDefined [
 
 	| builder |
 
-	builder := StateMachineBuilder buildingContextWith: StateMachineContextExample.
+	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 	builder addStateNamed: 'B'.
 	builder addTransitionFrom: 'A' to: 'B'.
@@ -314,9 +299,9 @@ StateMachineBuilderTest >> testWithMoreThanOneStateTheInitialStateMustBeDefined 
 ]
 
 { #category : #'private - processing' }
-StateMachineBuilderTest >> transitionsFromInitialStateOf: machine [
+StateMachineSpecificationBuilderTest >> transitionsFromInitialStateOf: machine [
 
 	^ machine
 		transitionsFrom: machine initialState
-		allowedWithin: (machine contextBuilder readyFor: machine)
+		allowedWithin: StateMachineContextExample new
 ]

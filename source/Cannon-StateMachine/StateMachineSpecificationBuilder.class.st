@@ -2,37 +2,30 @@
 A builder to help with the creation of state machines.
 "
 Class {
-	#name : #StateMachineBuilder,
+	#name : #StateMachineSpecificationBuilder,
 	#superclass : #Object,
 	#instVars : [
-		'contextBuilder',
 		'states',
 		'transitions',
 		'initialStateNameOptional'
 	],
-	#category : #Cannon
+	#category : #'Cannon-StateMachine-Cannon-StateMachine'
 }
 
-{ #category : #'instance creation' }
-StateMachineBuilder class >> buildingContextWith: aContextBuilder [
-
-	^ self new initializeBuildingContextWith: aContextBuilder
-]
-
 { #category : #configuring }
-StateMachineBuilder >> addStateNamed: aName [
+StateMachineSpecificationBuilder >> addStateNamed: aName [
 
 	self addStateNamed: aName onEntry: [  ] onExit: [  ]
 ]
 
 { #category : #configuring }
-StateMachineBuilder >> addStateNamed: aName onEntry: anEntryBlock onExit: anExitBlock [
+StateMachineSpecificationBuilder >> addStateNamed: aName onEntry: anEntryBlock onExit: anExitBlock [
 
 	states add: (StateSpecification named: aName onEntry: anEntryBlock onExit: anExitBlock)
 ]
 
 { #category : #configuring }
-StateMachineBuilder >> addTransitionFrom: aSourceStateName to: aDestinationStateName [
+StateMachineSpecificationBuilder >> addTransitionFrom: aSourceStateName to: aDestinationStateName [
 
 	self
 		addTransitionFrom: aSourceStateName
@@ -43,7 +36,7 @@ StateMachineBuilder >> addTransitionFrom: aSourceStateName to: aDestinationState
 ]
 
 { #category : #configuring }
-StateMachineBuilder >> addTransitionFrom: aSourceStateName to: aDestinationStateName allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
+StateMachineSpecificationBuilder >> addTransitionFrom: aSourceStateName to: aDestinationStateName allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
 
 	| transition sourceState destinationState |
 
@@ -59,7 +52,7 @@ StateMachineBuilder >> addTransitionFrom: aSourceStateName to: aDestinationState
 ]
 
 { #category : #configuring }
-StateMachineBuilder >> addTransitionNamed: aName from: aSourceStateName to: aDestinationStateName [
+StateMachineSpecificationBuilder >> addTransitionNamed: aName from: aSourceStateName to: aDestinationStateName [
 
 	self
 		addTransitionNamed: aName
@@ -71,7 +64,7 @@ StateMachineBuilder >> addTransitionNamed: aName from: aSourceStateName to: aDes
 ]
 
 { #category : #configuring }
-StateMachineBuilder >> addTransitionNamed: aName from: aSourceStateName to: aDestinationStateName allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
+StateMachineSpecificationBuilder >> addTransitionNamed: aName from: aSourceStateName to: aDestinationStateName allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
 
 	| transition sourceState destinationState |
 
@@ -88,7 +81,7 @@ StateMachineBuilder >> addTransitionNamed: aName from: aSourceStateName to: aDes
 ]
 
 { #category : #building }
-StateMachineBuilder >> build [
+StateMachineSpecificationBuilder >> build [
 
 	| initialState |
 
@@ -97,17 +90,16 @@ StateMachineBuilder >> build [
 	^ StateMachineSpecification
 		transitioningThrough: transitions
 		startingFrom: initialState
-		buildingContextWith: contextBuilder
 ]
 
 { #category : #configuring }
-StateMachineBuilder >> declareAsInitialState: aStateName [
+StateMachineSpecificationBuilder >> declareAsInitialState: aStateName [
 
 	initialStateNameOptional := Optional containing: aStateName
 ]
 
 { #category : #'private - accessing' }
-StateMachineBuilder >> initialState [
+StateMachineSpecificationBuilder >> initialState [
 
 	^ initialStateNameOptional
 		withContentDo: [ :initialStateName | self onlyStateNamed: initialStateName ]
@@ -115,16 +107,15 @@ StateMachineBuilder >> initialState [
 ]
 
 { #category : #initialization }
-StateMachineBuilder >> initializeBuildingContextWith: aContextBuilder [
+StateMachineSpecificationBuilder >> initialize [
 
-	contextBuilder := aContextBuilder.
 	states := Set new.
 	transitions := Set new.
 	initialStateNameOptional := Optional unused
 ]
 
 { #category : #'private - accessing' }
-StateMachineBuilder >> onlyState [
+StateMachineSpecificationBuilder >> onlyState [
 
 	AssertionChecker
 		enforce: [ states size = 1 ]
@@ -134,7 +125,7 @@ StateMachineBuilder >> onlyState [
 ]
 
 { #category : #'private - accessing' }
-StateMachineBuilder >> onlyStateNamed: initialStateName [
+StateMachineSpecificationBuilder >> onlyStateNamed: initialStateName [
 
 	| candidates |
 

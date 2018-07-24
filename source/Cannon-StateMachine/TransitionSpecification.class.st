@@ -15,46 +15,46 @@ Class {
 		'action',
 		'trigger'
 	],
-	#category : #Cannon
+	#category : #'Cannon-StateMachine-Cannon-StateMachine'
 }
 
 { #category : #'instance creation' }
-TransitionSpecification class >> named: aName from: aSourceState to: aDestinationState allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
+TransitionSpecification class >> named: aName from: aSourceStateSpec to: aDestinationStateSpec allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
 
 	"Names are relevant to organize the state machine and its transitions.
 	They also help during debugging."
-	
+
 	^ self
 		namedUsing: (Optional containing: aName)
-		from: aSourceState
-		to: aDestinationState
+		from: aSourceStateSpec
+		to: aDestinationStateSpec
 		allowedWhen: aConditionBlock
 		doing: anAction
 		triggeredBy: aTrigger
 ]
 
 { #category : #'private - instance creation' }
-TransitionSpecification class >> namedUsing: anOptional from: aSourceState to: aDestinationState allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
+TransitionSpecification class >> namedUsing: anOptional from: aSourceStateSpec to: aDestinationStateSpec allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
 
 	^ self new
 		initializeNamedUsing: anOptional
-		from: aSourceState
-		to: aDestinationState
+		from: aSourceStateSpec
+		to: aDestinationStateSpec
 		allowedWhen: aConditionBlock
 		doing: anAction
 		triggeredBy: aTrigger
 ]
 
 { #category : #'instance creation' }
-TransitionSpecification class >> unnamedFrom: aSourceState to: aDestinationState allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
+TransitionSpecification class >> unnamedFrom: aSourceStateSpec to: aDestinationStateSpec allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
 
 	"Names are relevant to organize the state machine and its transitions.
 	They also help during debugging."
 
 	^ self
 		namedUsing: Optional unused
-		from: aSourceState
-		to: aDestinationState
+		from: aSourceStateSpec
+		to: aDestinationStateSpec
 		allowedWhen: aConditionBlock
 		doing: anAction
 		triggeredBy: aTrigger
@@ -73,20 +73,20 @@ TransitionSpecification >> destination [
 ]
 
 { #category : #initialization }
-TransitionSpecification >> initializeNamedUsing: anOptional from: aSourceState to: aDestinationState allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
+TransitionSpecification >> initializeNamedUsing: anOptional from: aSourceStateSpec to: aDestinationStateSpec allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
 
 	nameOptional := anOptional.
-	source := aSourceState.
-	destination := aDestinationState.
+	source := aSourceStateSpec.
+	destination := aDestinationStateSpec.
 	condition := aConditionBlock.
 	action := anAction.
 	trigger := aTrigger
 ]
 
 { #category : #testing }
-TransitionSpecification >> isAllowedWithin: aContext [
+TransitionSpecification >> isAllowedWithin: anExternalContext [
 
-	^ condition isSatisfiedBy: aContext
+	^ condition isSatisfiedBy: anExternalContext
 ]
 
 { #category : #printing }

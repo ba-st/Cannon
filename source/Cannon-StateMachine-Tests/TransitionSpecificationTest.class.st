@@ -4,7 +4,7 @@ A TransitionSpecificationTest is a test class for testing the behavior of Transi
 Class {
 	#name : #TransitionSpecificationTest,
 	#superclass : #TestCase,
-	#category : #'Cannon-Tests'
+	#category : #'Cannon-StateMachine-Tests'
 }
 
 { #category : #'private - accessing' }
