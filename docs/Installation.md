@@ -6,7 +6,7 @@ You can load **Cannon** evaluating:
 ```smalltalk
 Metacello new
 	baseline: 'Cannon';
-	repository: 'github://ba-st/Cannon:master/repository';
+	repository: 'github://ba-st/Cannon:master/source';
 	load.
 ```
 >  Change `master` to some released version if you want a pinned version
