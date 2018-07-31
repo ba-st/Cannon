@@ -73,12 +73,12 @@ TransitionSpecification >> destination [
 ]
 
 { #category : #initialization }
-TransitionSpecification >> initializeNamedUsing: anOptional from: aSourceStateSpec to: aDestinationStateSpec allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
+TransitionSpecification >> initializeNamedUsing: anOptional from: aSourceStateSpec to: aDestinationStateSpec allowedWhen: aCondition doing: anAction triggeredBy: aTrigger [
 
 	nameOptional := anOptional.
 	source := aSourceStateSpec.
 	destination := aDestinationStateSpec.
-	condition := aConditionBlock.
+	condition := aCondition.
 	action := anAction.
 	trigger := aTrigger
 ]

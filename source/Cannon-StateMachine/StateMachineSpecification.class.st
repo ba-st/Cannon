@@ -122,9 +122,9 @@ StateMachineSpecification >> stateNamed: aStateName ifNone: aBlock [
 ]
 
 { #category : #accessing }
-StateMachineSpecification >> transitionsFrom: aCurrentState allowedWithin: anExternalContext [
+StateMachineSpecification >> transitionsFrom: aStateSpec allowedWithin: anExternalContext [
 
 	^ transitions
 		select:
-			[ :transition | transition source = aCurrentState and: [ transition isAllowedWithin: anExternalContext ] ]
+			[ :transition | transition source = aStateSpec and: [ transition isAllowedWithin: anExternalContext ] ]
 ]
