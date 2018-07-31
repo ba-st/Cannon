@@ -5,120 +5,165 @@ Rollbacks are executed when necessary.
 Class {
 	#name : #TransitionApplicator,
 	#superclass : #Object,
+	#instVars : [
+		'machineSpec',
+		'externalContext'
+	],
 	#category : #'Cannon-StateMachine-Cannon-StateMachine'
 }
 
-{ #category : #'private - accessing' }
-TransitionApplicator >> aborted: aTransitionSpec of: aMachineSpec notAllowedWithin: anExternalContext [
+{ #category : #'instance creation' }
+TransitionApplicator class >> within: aContext for: aMachineSpec [
 
-	^ TransitionAborted
-		becauseOf:
-			('<1p> is not an allowed transition in the current context.'
-				expandMacrosWith: aTransitionSpec)
-		stayingAt: aTransitionSpec source
-		within: (anExternalContext readyToApply: aTransitionSpec of: aMachineSpec)
+	^ self new initializeWithin: aContext for: aMachineSpec
 ]
 
 { #category : #'private - accessing' }
-TransitionApplicator >> aborted: aTransitionSpec within: aContext dueTo: aSignal [
+TransitionApplicator >> affectCommandFor: aTransitionSpec within: aTransitionContext whenComplete: aCompleteBlock [
 
-	^ TransitionAborted
-		becauseOf:
+	^ [ aTransitionSpec
+		affect: aTransitionContext
+		whenComplete:
+			(self
+				entryCommandFor: aTransitionSpec destination
+				within: aTransitionContext
+				whenComplete: aCompleteBlock) ]
+]
+
+{ #category : #accessing }
+TransitionApplicator >> allowedTransitionsFrom: aStateSpec [
+
+	^ machineSpec transitionsFrom: aStateSpec allowedWithin: externalContext
+]
+
+{ #category : #'private - processing' }
+TransitionApplicator >> because: aTransitionSpec couldNotBeCompletedWithin: aTransitionContext dueTo: aSignal evaluate: anAbortedBlock [
+
+	anAbortedBlock
+		value: aTransitionSpec source
+		value: aTransitionContext
+		value:
 			('<1p> could not be completed because <2s>.'
 				expandMacrosWith: aTransitionSpec
 				with: aSignal messageText)
-		stayingAt: aTransitionSpec source
-		within: aContext
-]
-
-{ #category : #'private - accessing' }
-TransitionApplicator >> abortedDueToMultipleTriggersConsidering: aResult [
-
-	^ TransitionAborted
-		becauseOf: ('Expected at most one active trigger at <1p>.' expandMacrosWith: aResult currentState)
-		stayingAt: aResult currentState
-		within: aResult context
-]
-
-{ #category : #processing }
-TransitionApplicator >> apply: aTransitionSpec of: aMachineSpec within: anExternalContext [
-
-	^ (aMachineSpec is: aTransitionSpec allowedWithin: anExternalContext)
-		ifTrue: [ self applyAllowed: aTransitionSpec of: aMachineSpec within: anExternalContext ]
-		ifFalse: [ self aborted: aTransitionSpec of: aMachineSpec notAllowedWithin: anExternalContext ]
 ]
 
 { #category : #'private - processing' }
-TransitionApplicator >> apply: aTransitionSpec within: aContext [
+TransitionApplicator >> because: aTransitionSpec isNotAllowedEvaluate: anAbortedBlock [
 
-	aTransitionSpec source exitAffecting: aContext.
-	aTransitionSpec affect: aContext.
-	aTransitionSpec destination enterAffecting: aContext
+	anAbortedBlock
+		value: aTransitionSpec source
+		value: (externalContext readyToApply: aTransitionSpec of: machineSpec)
+		value:
+			('<1p> is not an allowed transition in the current context.'
+				expandMacrosWith: aTransitionSpec)
 ]
 
 { #category : #'private - processing' }
-TransitionApplicator >> applyAllowed: aTransitionSpec of: aMachineSpec within: anExternalContext [
+TransitionApplicator >> becauseMultipleTriggersShouldBeActivatedFrom: aStateSpec within: aTransitionContext evaluate: anAbortedBlock [
 
-	| context transitionResult |
-
-	context := anExternalContext readyToApply: aTransitionSpec of: aMachineSpec.
-	transitionResult := self resultOfApplying: aTransitionSpec within: context.
-	^ transitionResult
-		ifComplete: [ self resultAfterTriggersConsidering: transitionResult within: anExternalContext ]
-		ifAborted: [ transitionResult ]
-]
-
-{ #category : #processing }
-TransitionApplicator >> applyInitialTransitionOf: aMachineSpec within: anExternalContext [
-
-	^ self
-		applyAllowed: (self transitionToInitialStateOf: aMachineSpec)
-		of: aMachineSpec
-		within: anExternalContext
+	anAbortedBlock
+		value: aStateSpec
+		value: aTransitionContext
+		value: ('Expected at most one active trigger at <1p>.' expandMacrosWith: aStateSpec)
 ]
 
 { #category : #'private - processing' }
-TransitionApplicator >> resultAfterTriggersConsidering: aResult within: anExternalContext [
+TransitionApplicator >> considerTriggersAt: aStateSpec within: aTransitionContext whenComplete: aCompleteBlock ifAborted: anAbortedBlock [
 
 	| candidates |
 
-	candidates := self transitionsToTriggerConsidering: aResult within: anExternalContext.
-	candidates size > 1
-		ifTrue: [ ^ self abortedDueToMultipleTriggersConsidering: aResult ].
-	candidates size = 1
-		ifTrue: [ ^ self
-				apply: candidates anyOne
-				of: aResult context stateMachine
-				within: anExternalContext ].
-	^ aResult
+	candidates := self transitionsAt: aStateSpec toTriggerWithin: aTransitionContext.
+	self
+		with: candidates
+		ifEmpty: [ aCompleteBlock value: aStateSpec value: aTransitionContext ]
+		ifSingle: [ self
+				startAllowed: candidates anyOne
+				whenComplete: aCompleteBlock
+				ifAborted: anAbortedBlock ]
+		ifMultiple: [ self
+				becauseMultipleTriggersShouldBeActivatedFrom: aStateSpec
+				within: aTransitionContext
+				evaluate: anAbortedBlock ]
+]
+
+{ #category : #'private - accessing' }
+TransitionApplicator >> entryCommandFor: aStateSpec within: aTransitionContext whenComplete: aCompleteBlock [
+
+	^ [ aStateSpec enterAffecting: aTransitionContext whenComplete: aCompleteBlock ]
+]
+
+{ #category : #initialization }
+TransitionApplicator >> initializeWithin: aContext for: aMachineSpec [
+
+	externalContext := aContext.
+	machineSpec := aMachineSpec
+]
+
+{ #category : #processing }
+TransitionApplicator >> start: aTransitionSpec whenComplete: aCompleteBlock ifAborted: anAbortedBlock [
+
+	(machineSpec is: aTransitionSpec allowedWithin: externalContext)
+		ifTrue:
+			[ self startAllowed: aTransitionSpec whenComplete: aCompleteBlock ifAborted: anAbortedBlock ]
+		ifFalse: [ self because: aTransitionSpec isNotAllowedEvaluate: anAbortedBlock ]
 ]
 
 { #category : #'private - processing' }
-TransitionApplicator >> resultOfApplying: aTransitionSpec within: context [
+TransitionApplicator >> start: aTransitionSpec within: aTransitionContext whenComplete: aCompleteBlock [
 
-	^ [ self apply: aTransitionSpec within: context.
-	TransitionCompleted reaching: aTransitionSpec destination within: context ]
+	aTransitionSpec source
+		exitAffecting: aTransitionContext
+		whenComplete:
+			(self
+				affectCommandFor: aTransitionSpec
+				within: aTransitionContext
+				whenComplete: aCompleteBlock)
+]
+
+{ #category : #'private - processing' }
+TransitionApplicator >> start: aTransitionSpec within: aTransitionContext whenComplete: aCompleteBlock ifAborted: anAbortedBlock [
+
+	[ self start: aTransitionSpec within: aTransitionContext whenComplete: aCompleteBlock ]
 		on: Error
-		do:
-			[ :aSignal | aSignal return: (self aborted: aTransitionSpec within: context dueTo: aSignal) ]
+		do: [ :aSignal | 
+			self
+				because: aTransitionSpec
+				couldNotBeCompletedWithin: aTransitionContext
+				dueTo: aSignal
+				evaluate: anAbortedBlock ]
+]
+
+{ #category : #'private - processing' }
+TransitionApplicator >> startAllowed: aTransitionSpec whenComplete: aCompleteBlock ifAborted: anAbortedBlock [
+
+	| transitionContext |
+
+	transitionContext := externalContext readyToApply: aTransitionSpec of: machineSpec.
+	self
+		start: aTransitionSpec
+		within: transitionContext
+		whenComplete: [ self
+				considerTriggersAt: aTransitionSpec destination
+				within: transitionContext
+				whenComplete: aCompleteBlock
+				ifAborted: anAbortedBlock ]
+		ifAborted: anAbortedBlock
 ]
 
 { #category : #'private - accessing' }
-TransitionApplicator >> transitionToInitialStateOf: aMachineSpec [
+TransitionApplicator >> transitionsAt: aStateSpec toTriggerWithin: aTransitionContext [
 
-	^ TransitionSpecification
-		unnamedFrom: (StateSpecification named: '' onEntry: [  ] onExit: [  ])
-		to: aMachineSpec initialState
-		allowedWhen: (CompositeCondition satisfyingAll: #())
-		doing: [  ]
-		triggeredBy: ManualTransitionTrigger new
+	^ (self allowedTransitionsFrom: aStateSpec)
+		select: [ :transition | transition shouldBeTriggeredWithin: aTransitionContext ]
 ]
 
-{ #category : #'private - accessing' }
-TransitionApplicator >> transitionsToTriggerConsidering: aResult within: anExternalContext [
+{ #category : #'private - processing' }
+TransitionApplicator >> with: aCollection ifEmpty: anEmptyBlock ifSingle: aSingleBlock ifMultiple: aMultipleBlock [
 
-	^ (aResult context stateMachine
-		transitionsFrom: aResult currentState
-		allowedWithin: anExternalContext)
-		select: [ :transition | transition shouldBeTriggeredWithin: aResult context ]
+	aCollection isEmpty
+		ifTrue: [ ^ anEmptyBlock value ].
+	aCollection size = 1
+		ifTrue: [ ^ aSingleBlock value ].
+	^ aMultipleBlock value
 ]

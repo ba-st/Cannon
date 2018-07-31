@@ -19,15 +19,15 @@ StateSpecification class >> named: aName onEntry: anEntryCommand onExit: anExitC
 ]
 
 { #category : #accessing }
-StateSpecification >> enterAffecting: aContext [
+StateSpecification >> enterAffecting: aContext whenComplete: aCompleteBlock [
 
-	^ entryCommand cull: aContext
+	^ entryCommand cull: aContext cull: aCompleteBlock
 ]
 
 { #category : #accessing }
-StateSpecification >> exitAffecting: aContext [
+StateSpecification >> exitAffecting: aContext whenComplete: aCompleteBlock [
 
-	^ exitCommand cull: aContext
+	^ exitCommand cull: aContext cull: aCompleteBlock
 ]
 
 { #category : #initialization }

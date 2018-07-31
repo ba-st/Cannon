@@ -51,14 +51,21 @@ TransitionSpecificationTest >> testPrintOn [
 
 	states := Array with: (self stateNamed: 'a') with: (self stateNamed: 'b').
 	transition := TransitionSpecification
+		unnamedFrom: states first
+		to: states last
+		allowedWhen: (ArithmeticCondition toBeEqualTo: 0)
+		doing: [ :currentContext | currentContext nextPutAll: '...Transitioning...' ]
+		triggeredBy: ManualTransitionTrigger new.
+	self assert: transition asString equals: 'a-->b'.
+
+	transition := TransitionSpecification
 		named: 'move'
 		from: states first
 		to: states last
 		allowedWhen: (ArithmeticCondition toBeEqualTo: 0)
 		doing: [ :currentContext | currentContext nextPutAll: '...Transitioning...' ]
 		triggeredBy: ManualTransitionTrigger new.
-
-	self assert: transition asString equals: 'a-->b'
+	self assert: transition asString equals: 'move (a-->b)'
 ]
 
 { #category : #tests }

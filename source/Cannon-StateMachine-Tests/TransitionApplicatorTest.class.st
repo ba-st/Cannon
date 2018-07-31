@@ -57,19 +57,21 @@ TransitionApplicatorTest >> testApplyInitialTransitionOfWithin [
 
 	stream := self readyStream.
 	states := self threeStatesWritingTo: stream.
-	transitions := self sequentialTransitionsThrough: states writingTo: stream.
+	transitions := self
+		sequentialTransitionsThrough: states
+		writingTo: stream.
 	specification := StateMachineSpecification
 		transitioningThrough: transitions
 		startingFrom: states first.
-	result := TransitionApplicator new
-		applyInitialTransitionOf: specification
-		within: StateMachineContextExample new.
+	result := TransitionApplicator new applyInitialTransition.
 	result
 		ifComplete: [ stream
 				nextPutAll: 'Complete';
 				cr ]
 		ifAborted: [ self fail ].
-	self assert: stream contents equals: 'Ready<r>Entering A<r>Complete<r>' expandMacros
+	self
+		assert: stream contents
+		equals: 'Ready<r>Entering A<r>Complete<r>' expandMacros
 ]
 
 { #category : #tests }
@@ -85,10 +87,7 @@ TransitionApplicatorTest >> testApplyOfWithin [
 	specification := StateMachineSpecification
 		transitioningThrough: transitions
 		startingFrom: states first.
-	result := TransitionApplicator new
-		apply: transitions first
-		of: specification
-		within: StateMachineContextExample new.
+	result := TransitionApplicator new apply: transitions first.
 	result
 		ifComplete: [ stream
 				nextPutAll: 'Complete';
@@ -123,11 +122,10 @@ TransitionApplicatorTest >> testTransitionIsInterruptedWhenActionFails [
 		transitioningThrough: transitions
 		startingFrom: states first.
 
-	result := TransitionApplicator new
-		apply: transitions first
-		of: specification
-		within: StateMachineContextExample new.
-	result ifComplete: [ self fail ] ifAborted: [ :reason | stream nextPutAll: reason ].
+	result := TransitionApplicator new apply: transitions first.
+	result
+		ifComplete: [ self fail ]
+		ifAborted: [ :reason | stream nextPutAll: reason ].
 	self
 		assert: stream contents
 		equals:
@@ -172,16 +170,15 @@ TransitionApplicatorTest >> testTransitionIsInterruptedWhenEntryToDestinationSta
 		transitioningThrough: transitions
 		startingFrom: states first.
 
-	result := TransitionApplicator new
-		apply: transitions first
-		of: specification
-		within: StateMachineContextExample new.
+	result := TransitionApplicator new apply: transitions first.
 
-	result ifComplete: [ self fail ] ifAborted: [ :reason | stream nextPutAll: reason ].
+	result
+		ifComplete: [ self fail ]
+		ifAborted: [ :reason | stream nextPutAll: reason ].
 	self
 		assert: stream contents
 		equals:
-			'Ready<r>Exiting A<r>Inside no other<r>Trying to enter B<r>A-->B could not be completed because this door is closed.'
+			'Ready<r>Exiting A<r>Inside no other<r>Trying to enter B<r>no other (A-->B) could not be completed because this door is closed.'
 				expandMacros
 ]
 
@@ -222,15 +219,14 @@ TransitionApplicatorTest >> testTransitionIsInterruptedWhenExitFromSourceStateFa
 		transitioningThrough: transitions
 		startingFrom: states first.
 
-	result := TransitionApplicator new
-		apply: transitions first
-		of: specification
-		within: StateMachineContextExample new.
-	result ifComplete: [ self fail ] ifAborted: [ :reason | stream nextPutAll: reason ].
+	result := TransitionApplicator new apply: transitions first.
+	result
+		ifComplete: [ self fail ]
+		ifAborted: [ :reason | stream nextPutAll: reason ].
 	self
 		assert: stream contents
 		equals:
-			'Ready<r>Trying to exit A<r>A-->B could not be completed because there is no way out.'
+			'Ready<r>Trying to exit A<r>no other (A-->B) could not be completed because there is no way out.'
 				expandMacros
 ]
 
@@ -273,11 +269,10 @@ TransitionApplicatorTest >> testTransitionIsInterruptedWhenMultipleTriggersCanBe
 		transitioningThrough: transitions
 		startingFrom: states first.
 
-	result := TransitionApplicator new
-		apply: transitions first
-		of: specification
-		within: StateMachineContextExample new.
-	result ifComplete: [ self fail ] ifAborted: [ :reason | stream nextPutAll: reason ].
+	result := TransitionApplicator new apply: transitions first.
+	result
+		ifComplete: [ self fail ]
+		ifAborted: [ :reason | stream nextPutAll: reason ].
 	self
 		assert: stream contents
 		equals:
@@ -295,19 +290,22 @@ TransitionApplicatorTest >> testTransitionIsNotAppliedWhenPreconditionIsNotSatis
 		nextPutAll: 'Noise';
 		cr.
 	states := self threeStatesWritingTo: stream.
-	transitions := self sequentialTransitionsThrough: states writingTo: stream.
+	transitions := self
+		sequentialTransitionsThrough: states
+		writingTo: stream.
 	specification := StateMachineSpecification
 		transitioningThrough: transitions
 		startingFrom: states first.
 
-	result := TransitionApplicator new
-		apply: transitions first
-		of: specification
-		within: StateMachineContextExample new.
-	result ifComplete: [ self fail ] ifAborted: [ :reason | stream nextPutAll: reason ].
+	result := TransitionApplicator new apply: transitions first.
+	result
+		ifComplete: [ self fail ]
+		ifAborted: [ :reason | stream nextPutAll: reason ].
 	self
 		assert: stream contents
-		equals: 'Noise<r>A-->B is not an allowed transition in the current context.' expandMacros
+		equals:
+			'Noise<r>the one (A-->B) is not an allowed transition in the current context.'
+				expandMacros
 ]
 
 { #category : #tests }
@@ -342,10 +340,7 @@ TransitionApplicatorTest >> testTriggersAreEvaluatedAfterEnteringDestinationStat
 	specification := StateMachineSpecification
 		transitioningThrough: transitions
 		startingFrom: states first.
-	result := TransitionApplicator new
-		apply: transitions first
-		of: specification
-		within: StateMachineContextExample new.
+	result := TransitionApplicator new apply: transitions first.
 	result
 		ifComplete: [ stream
 				nextPutAll: 'Complete';

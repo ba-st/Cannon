@@ -5,8 +5,6 @@ Class {
 	#name : #WorkflowTransitioner,
 	#superclass : #Object,
 	#instVars : [
-		'context',
-		'machineSpec',
 		'currentState',
 		'transitionApplicator'
 	],
@@ -20,17 +18,10 @@ WorkflowTransitioner class >> within: aContext for: aMachineSpec in: aStateName 
 ]
 
 { #category : #'instance creation' }
-WorkflowTransitioner class >> within: anExternalContext inInitialStateFor: machineSpec [
+WorkflowTransitioner class >> within: anExternalContext inInitialStateFor: aMachineSpec [
 
-	| result |
-
-	result := TransitionApplicator new
-		applyInitialTransitionOf: machineSpec
-		within: anExternalContext.
-
-	^ result
-		ifComplete: [ self within: anExternalContext for: machineSpec in: result currentState name ]
-		ifAborted: [ :reason | InstanceCreationFailed signal: reason ]
+	aMachineSpec initialState enterAffecting: anExternalContext whenComplete: [  ].
+	^ self within: anExternalContext for: aMachineSpec in: aMachineSpec initialState name
 ]
 
 { #category : #accessing }
@@ -42,34 +33,37 @@ WorkflowTransitioner >> currentState [
 { #category : #initialization }
 WorkflowTransitioner >> initializeWithin: aContext for: aMachineSpec in: aStateName [
 
-	context := aContext.
-	machineSpec := aMachineSpec.
-	currentState := machineSpec
+	currentState := aMachineSpec
 		stateNamed: aStateName
 		ifNone: [ InstanceCreationFailed signal: ('No state is named <1s>' expandMacrosWith: aStateName) ].
-
-	transitionApplicator := TransitionApplicator new
+	transitionApplicator := TransitionApplicator within: aContext for: aMachineSpec
 ]
 
 { #category : #processing }
-WorkflowTransitioner >> transitionTo: aStateName [
+WorkflowTransitioner >> startTransitionTo: aStateName [
 
-	^ (machineSpec transitionsFrom: self currentState allowedWithin: context)
-		detect: [ :transitionSpec | transitionSpec destination name = aStateName ]
-		ifFound: [ :transitionSpec | self updateStateAfterApplying: transitionSpec ]
-		ifNone: [ ObjectNotFound
+	| candidates |
+
+	candidates := (transitionApplicator allowedTransitionsFrom: self currentState)
+		select: [ :transitionSpec | transitionSpec destination name = aStateName ].
+
+	candidates size = 1
+		ifTrue: [ self updateStateAfterStarting: candidates anyOne ]
+		ifFalse: [ ObjectNotFound
 				signal:
-					('No allowed transition found from <1s> to <2s>'
+					('Expected single transition from <1s> to <2s> but found <3p>.'
 						expandMacrosWith: self currentState name
-						with: aStateName) ]
+						with: aStateName
+						with: candidates size) ]
 ]
 
 { #category : #'private - processing' }
-WorkflowTransitioner >> updateStateAfterApplying: aTransitionSpec [
+WorkflowTransitioner >> updateStateAfterStarting: aTransitionSpec [
 
-	| result |
-
-	result := transitionApplicator apply: aTransitionSpec of: machineSpec within: context.
-	result ifComplete: [  ] ifAborted: [ :reason | context applyRollback ].
-	currentState := result currentState
+	transitionApplicator
+		start: aTransitionSpec
+		whenComplete: [ :state :context | currentState := state ]
+		ifAborted: [ :state :context :reason | 
+			context applyRollbackDueTo: reason.
+			currentState := state ]
 ]

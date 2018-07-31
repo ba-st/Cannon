@@ -12,8 +12,6 @@ StateMachineSpecificationBuilderTest >> applyOnlyTransitionOf: machine [
 
 	TransitionApplicator new
 		apply: (self transitionsFromInitialStateOf: machine) anyOne
-		of: machine
-		within: StateMachineContextExample new
 ]
 
 { #category : #tests }

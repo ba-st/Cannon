@@ -166,7 +166,7 @@ WorkflowTransitionerTest >> testFailedManualTransitionOnlyRollbacksThatTransitio
 	transitioner := WorkflowTransitioner within: workflowContext inInitialStateFor: machine.
 
 	self assertCollection: logs hasSameElements: (Array with: 'Now Pending').
-	transitioner transitionTo: 'Confirmed'.
+	transitioner startTransitionTo: 'Confirmed'.
 	self assert: transitioner currentState name equals: 'Confirmed'.
 	self
 		assertCollection: logs
@@ -177,7 +177,7 @@ WorkflowTransitionerTest >> testFailedManualTransitionOnlyRollbacksThatTransitio
 				with: 'User interaction while confirming'
 				with: 'Now Confirmed').
 
-	transitioner transitionTo: 'Settled'.
+	transitioner startTransitionTo: 'Settled'.
 	self assert: transitioner currentState name equals: 'Confirmed'.
 	self
 		assertCollection: logs
@@ -220,7 +220,7 @@ WorkflowTransitionerTest >> testFailedTransitionDuringTriggerOnlyRollbacksLastTr
 
 
 	self assertCollection: logs hasSameElements: (Array with: 'Now Pending').
-	transitioner transitionTo: 'Confirmed'.
+	transitioner startTransitionTo: 'Confirmed'.
 	self assert: transitioner currentState name equals: 'Confirmed'.
 	self
 		assertCollection: logs
@@ -272,6 +272,41 @@ WorkflowTransitionerTest >> testInstanceCreationFailsWhenStateIsInvalid [
 ]
 
 { #category : #tests }
+WorkflowTransitionerTest >> testMultipleAllowedTransitionsFromSameSourcetoSameDestinationAreInvalid [
+
+	| builder machine stream transitioner |
+
+	stream := WriteStream on: String new.
+	builder := self machineSpecBuilder.
+	builder
+		addTransitionNamed: 'A type of confirmation'
+		from: 'Pending'
+		to: 'Confirmed'
+		allowedWhen: self confirmationCondition
+		doing: [ stream nextPutAll: 'Confirmed one way' ]
+		triggeredBy: (PluggableTriggerExample activatedWhen: [ false ]).
+	builder
+		addTransitionNamed: 'Another confirmation'
+		from: 'Pending'
+		to: 'Confirmed'
+		allowedWhen: self confirmationCondition
+		doing: [ stream nextPutAll: 'Confirmed another' ]
+		triggeredBy: (PluggableTriggerExample activatedWhen: [ false ]).
+	builder declareAsInitialState: 'Pending'.
+	machine := builder build.
+	transitioner := WorkflowTransitioner within: self workflowContext inInitialStateFor: machine.
+
+	self
+		should: [ transitioner startTransitionTo: 'Confirmed' ]
+		raise: ObjectNotFound
+		withExceptionDo: [ :exception | 
+			self
+				assert: exception messageText
+				equals: 'Expected single transition from Pending to Confirmed but found 2.' ].
+	self assert: stream isEmpty
+]
+
+{ #category : #tests }
 WorkflowTransitionerTest >> testRollbackOfFailedTransition [
 
 	| builder logs machine workflowContext transitioner |
@@ -293,7 +328,7 @@ WorkflowTransitionerTest >> testRollbackOfFailedTransition [
 	transitioner := WorkflowTransitioner within: workflowContext inInitialStateFor: machine.
 
 	self assertCollection: logs hasSameElements: (Array with: 'Now Pending').
-	transitioner transitionTo: 'Confirmed'.
+	transitioner startTransitionTo: 'Confirmed'.
 	self assert: transitioner currentState name equals: 'Pending'.
 	self assertCollection: logs hasSameElements: (Array with: 'Now Pending')
 ]
@@ -307,14 +342,12 @@ WorkflowTransitionerTest >> testTransitionFailsWhenDestionationStateIsUnreachabl
 	machine := self machineSpecWithManualConfirmationAndSettlementWritingTo: stream.
 	workflowContext := self workflowContext.
 	transitioner := WorkflowTransitioner within: workflowContext inInitialStateFor: machine.
-	
+
 	self
-		should: [ transitioner transitionTo: 'Settled' ]
+		should: [ transitioner startTransitionTo: 'Settled' ]
 		raise: ObjectNotFound
-		withExceptionDo: [ :exception | 
-			self
-				assert: exception messageText
-				equals: 'No allowed transition found from Pending to Settled' ].
+		withExceptionDo:
+			[ :exception | self assert: exception messageText equals: 'Expected single transition from Pending to Settled but found 0.' ].
 	self assert: stream isEmpty
 ]
 
@@ -331,14 +364,14 @@ WorkflowTransitionerTest >> testTransitionFailsWhenNotAllowed [
 		managingTradeOf: 'Bob'
 		expectedToSettleOn: (Date today subtractDays: 1).
 	transitioner := WorkflowTransitioner within: workflowContext inInitialStateFor: machine.
-	
+
 	self
-		should: [ transitioner transitionTo: 'Confirmed' ]
+		should: [ transitioner startTransitionTo: 'Confirmed' ]
 		raise: ObjectNotFound
 		withExceptionDo: [ :exception | 
 			self
 				assert: exception messageText
-				equals: 'No allowed transition found from Pending to Confirmed' ].
+				equals: 'Expected single transition from Pending to Confirmed but found 0.' ].
 	self assert: stream isEmpty
 ]
 
@@ -370,10 +403,10 @@ WorkflowTransitionerTest >> testTransitionFromInitialStateWithInactiveTrigger [
 
 	self assert: stream contents isEmpty.
 	self assert: transitioner currentState name equals: 'Pending'.
-	transitioner transitionTo: 'Confirmed'.
+	transitioner startTransitionTo: 'Confirmed'.
 	self assert: transitioner currentState name equals: 'Confirmed'.
 	self assert: stream contents equals: 'Confirmation complete<r>' expandMacros.
-	transitioner transitionTo: 'Settled'.
+	transitioner startTransitionTo: 'Settled'.
 	self assert: transitioner currentState name equals: 'Settled'.
 	self
 		assert: stream contents
@@ -392,7 +425,7 @@ WorkflowTransitionerTest >> testTransitionToStateWithActiveTrigger [
 
 	self assert: stream contents isEmpty.
 	self assert: transitioner currentState name equals: 'Pending'.
-	transitioner transitionTo: 'Confirmed'.
+	transitioner startTransitionTo: 'Confirmed'.
 	self assert: transitioner currentState name equals: 'Settled'.
 	self
 		assert: stream contents
@@ -411,10 +444,10 @@ WorkflowTransitionerTest >> testTransitionToStateWithInactiveTrigger [
 
 	self assert: stream contents isEmpty.
 	self assert: transitioner currentState name equals: 'Pending'.
-	transitioner transitionTo: 'Confirmed'.
+	transitioner startTransitionTo: 'Confirmed'.
 	self assert: transitioner currentState name equals: 'Confirmed'.
 	self assert: stream contents equals: 'Confirmation complete<r>' expandMacros.
-	transitioner transitionTo: 'Settled'.
+	transitioner startTransitionTo: 'Settled'.
 	self assert: transitioner currentState name equals: 'Settled'.
 	self
 		assert: stream contents

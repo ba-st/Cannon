@@ -24,7 +24,7 @@ StateMachineContextExample >> readyToApply: aTransitionSpecification of: aStateM
 ]
 
 { #category : #accessing }
-StateMachineContextExample >> stateMachine [
+StateMachineContextExample >> stateMachineSpec [
 
 	^ stateMachineBinding content
 ]

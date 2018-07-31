@@ -13,19 +13,20 @@ BaselineOfCannon >> baseline: spec [
 	<baseline>
 	spec
 		for: #common
-		do: [
-			self setUpDependencies: spec.
+		do: [ self setUpDependencies: spec.
 
 			spec
 				package: 'Cannon-StateMachine' with: [ spec requires: #('Buoy' 'Mole') ];
 				package: 'Cannon-Workflow' with: [ spec requires: #('Cannon-StateMachine') ];
 				package: 'Cannon-StateMachine-Tests' with: [ spec requires: 'Cannon-StateMachine' ];
-				package: 'Cannon-Workflow-Tests' with: [ spec requires: 'Cannon-Workflow' ].
+				package: 'Cannon-Workflow-Tests' with: [ spec requires: 'Cannon-Workflow' ];
+				package: 'Cannon-Willow-Examples' with: [ spec requires: #('Cannon-Workflow-Tests' 'Willow') ].
 
 			spec
 				group: 'Deployment' with: #('Cannon-StateMachine' 'Cannon-Workflow');
 				group: 'Development' with: #('Cannon-StateMachine-Tests' 'Cannon-Workflow-Tests');
-				group: 'default' with: #('Deployment') ]
+				group: 'Examples' with: #('Cannon-Willow-Examples');
+				group: 'default' with: #('Deployment' 'Examples') ]
 ]
 
 { #category : #baselines }
@@ -42,4 +43,10 @@ BaselineOfCannon >> setUpDependencies: spec [
 		with: [ spec
 				repository: 'github://ba-st/Mole:v3/source';
 				loads: #('Deployment') ].
+
+	spec
+		baseline: 'Willow'
+		with: [ spec
+				repository: 'github://ba-st/Willow:v10/source';
+				loads: #('Willow') ]
 ]

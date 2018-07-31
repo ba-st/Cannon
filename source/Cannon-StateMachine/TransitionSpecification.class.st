@@ -61,9 +61,9 @@ TransitionSpecification class >> unnamedFrom: aSourceStateSpec to: aDestinationS
 ]
 
 { #category : #processing }
-TransitionSpecification >> affect: aContext [
+TransitionSpecification >> affect: aContext whenComplete: aCompleteBlock [
 
-	^ action cull: aContext
+	^ action cull: aContext cull: aCompleteBlock
 ]
 
 { #category : #accessing }
@@ -91,6 +91,20 @@ TransitionSpecification >> isAllowedWithin: anExternalContext [
 
 { #category : #printing }
 TransitionSpecification >> printOn: aStream [
+
+	self
+		withNameDo: [ :name | 
+			aStream
+				nextPutAll: name;
+				space;
+				nextPut: $(.
+			self printSourceToDestinationOn: aStream.
+			aStream nextPut: $) ]
+		ifUnnamed: [ self printSourceToDestinationOn: aStream ]
+]
+
+{ #category : #'private - printing' }
+TransitionSpecification >> printSourceToDestinationOn: aStream [
 
 	self source printOn: aStream.
 	aStream nextPutAll: '-->'.
