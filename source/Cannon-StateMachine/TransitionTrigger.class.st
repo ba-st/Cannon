@@ -5,7 +5,7 @@ This is an abstract class that must defined different situations (manual, always
 Class {
 	#name : #TransitionTrigger,
 	#superclass : #Object,
-	#category : #'Cannon-StateMachine-Cannon-StateMachine'
+	#category : #'Cannon-StateMachine'
 }
 
 { #category : #testing }

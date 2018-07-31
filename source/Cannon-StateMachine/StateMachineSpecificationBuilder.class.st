@@ -9,7 +9,7 @@ Class {
 		'transitions',
 		'initialStateNameOptional'
 	],
-	#category : #'Cannon-StateMachine-Cannon-StateMachine'
+	#category : #'Cannon-StateMachine'
 }
 
 { #category : #configuring }

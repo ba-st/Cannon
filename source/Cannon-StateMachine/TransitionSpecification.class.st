@@ -15,7 +15,7 @@ Class {
 		'action',
 		'trigger'
 	],
-	#category : #'Cannon-StateMachine-Cannon-StateMachine'
+	#category : #'Cannon-StateMachine'
 }
 
 { #category : #'instance creation' }

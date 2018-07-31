@@ -8,7 +8,7 @@ Class {
 		'transitions',
 		'initialState'
 	],
-	#category : #'Cannon-StateMachine-Cannon-StateMachine'
+	#category : #'Cannon-StateMachine'
 }
 
 { #category : #'instance creation' }
