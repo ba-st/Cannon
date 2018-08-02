@@ -8,10 +8,17 @@ Class {
 }
 
 { #category : #'private - processing' }
-StateMachineSpecificationBuilderTest >> applyOnlyTransitionOf: machine [
+StateMachineSpecificationBuilderTest >> applyOnlyTransitionOf: machine writingTo: aStream [
 
-	TransitionApplicator new
-		apply: (self transitionsFromInitialStateOf: machine) anyOne
+	| candidates |
+
+	candidates := (self transitionsFromInitialStateOf: machine) anyOne.
+
+	(TransitionStarter within: StateMachineSpecificationContextExample new for: machine)
+		start: candidates
+		whenComplete: [ aStream
+				nextPutAll: 'Done';
+				cr ]
 ]
 
 { #category : #tests }
@@ -21,7 +28,7 @@ StateMachineSpecificationBuilderTest >> testAddStateNamed [
 
 	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
-	builder addTransitionFrom: 'A' to: 'A'.
+	builder addTransitionFromStateNamed: 'A' toStateNamed: 'A'.
 	machine := builder build.
 
 	self assert: machine initialState name equals: 'A'
@@ -42,26 +49,26 @@ StateMachineSpecificationBuilderTest >> testAddStateNamedOnEntryOnExit [
 		onExit: [ stream
 				nextPutAll: 'Exiting';
 				cr ].
-	builder addTransitionFrom: 'A' to: 'A'.
+	builder addTransitionFromStateNamed: 'A' toStateNamed: 'A'.
 	machine := builder build.
 
 	self assert: machine initialState name equals: 'A'.
 
 	self assert: stream contents isEmpty.
-	self applyOnlyTransitionOf: machine.
-	self assert: stream contents equals: 'Exiting<r>Entering<r>' expandMacros
+	self applyOnlyTransitionOf: machine writingTo: stream.
+	self assert: stream contents equals: 'Exiting<r>Entering<r>Done<r>' expandMacros
 ]
 
 { #category : #tests }
-StateMachineSpecificationBuilderTest >> testAddTransitionFromTo [
+StateMachineSpecificationBuilderTest >> testAddTransitionFromStateNamedToStateNamed [
 
 	| builder machine transitions stream |
 
 	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 	builder addStateNamed: 'B'.
-	builder addTransitionFrom: 'A' to: 'B'.
-	builder declareAsInitialState: 'A'.
+	builder addTransitionFromStateNamed: 'A' toStateNamed: 'B'.
+	builder startFromStateNamed: 'A'.
 	machine := builder build.
 
 	transitions := self transitionsFromInitialStateOf: machine.
@@ -78,7 +85,7 @@ StateMachineSpecificationBuilderTest >> testAddTransitionFromTo [
 ]
 
 { #category : #tests }
-StateMachineSpecificationBuilderTest >> testAddTransitionFromToAllowedWhenDoingTriggeredBy [
+StateMachineSpecificationBuilderTest >> testAddTransitionFromStateNamedToStateNamedAllowedWhenCompletedUsingTriggeredBy [
 
 	| builder machine transitions stream |
 
@@ -88,22 +95,14 @@ StateMachineSpecificationBuilderTest >> testAddTransitionFromToAllowedWhenDoingT
 	builder addStateNamed: 'B'.
 	builder addStateNamed: 'C'.
 	builder
-		addTransitionFrom: 'A'
-		to: 'B'
+		addTransitionFromStateNamed: 'A'
+		toStateNamed: 'B'
 		allowedWhen: (TransitionConditionExample readingFrom: stream)
-		doing: [ stream
-				nextPutAll: 'Manual...done';
+		completedUsing: [ stream
+				nextPutAll: 'Manual';
 				cr ]
-		triggeredBy: (PluggableTriggerExample activatedWhen: [ false ]).
-	builder
-		addTransitionFrom: 'B'
-		to: 'C'
-		allowedWhen: (TransitionConditionExample readingFrom: stream)
-		doing: [ stream
-				nextPutAll: 'Auto...done';
-				cr ]
-		triggeredBy: (PluggableTriggerExample activatedWhen: [ true ]).
-	builder declareAsInitialState: 'A'.
+		triggeredBy: ManualTransitionTrigger new.
+	builder startFromStateNamed: 'A'.
 	machine := builder build.
 
 	self assert: (self transitionsFromInitialStateOf: machine) isEmpty.
@@ -117,22 +116,58 @@ StateMachineSpecificationBuilderTest >> testAddTransitionFromToAllowedWhenDoingT
 		assert: transitions anyOne source name equals: 'A';
 		assert: transitions anyOne destination name equals: 'B'.
 
-	self applyOnlyTransitionOf: machine.
-	self
-		assert: stream contents
-		equals: 'Ready<r>Manual...done<r>Auto...done<r>' expandMacros
+	self applyOnlyTransitionOf: machine writingTo: stream.
+	self assert: stream contents equals: 'Ready<r>Manual<r>Done<r>' expandMacros
 ]
 
 { #category : #tests }
-StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromTo [
+StateMachineSpecificationBuilderTest >> testAddTransitionFromStateNamedToStateNamedAllowedWhenStartedUsingTriggeredBy [
+
+	| builder machine transitions stream |
+
+	stream := WriteStream on: String new.
+	builder := StateMachineSpecificationBuilder new.
+	builder addStateNamed: 'A'.
+	builder addStateNamed: 'B'.
+	builder addStateNamed: 'C'.
+	builder
+		addTransitionFromStateNamed: 'A'
+		toStateNamed: 'B'
+		allowedWhen: (TransitionConditionExample readingFrom: stream)
+		startedUsing: [ :context :completeBlock | 
+			stream
+				nextPutAll: 'Manual';
+				cr.
+			completeBlock value ]
+		triggeredBy: ManualTransitionTrigger new.
+	builder startFromStateNamed: 'A'.
+	machine := builder build.
+
+	self assert: (self transitionsFromInitialStateOf: machine) isEmpty.
+
+	stream
+		nextPutAll: 'Ready';
+		cr.
+	transitions := self transitionsFromInitialStateOf: machine.
+	self
+		assert: transitions size equals: 1;
+		assert: transitions anyOne source name equals: 'A';
+		assert: transitions anyOne destination name equals: 'B'.
+
+	self applyOnlyTransitionOf: machine writingTo: stream.
+	self assert: stream contents equals: 'Ready<r>Manual<r>Done<r>' expandMacros
+]
+
+{ #category : #tests }
+StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromStateNamedToStateNamed [
 
 	| builder machine transitions stream |
 
 	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 	builder addStateNamed: 'B'.
-	builder addTransitionNamed: 'only' from: 'A' to: 'B'.
-	builder declareAsInitialState: 'A'.
+	builder addTransitionNamed: 'only' fromStateNamed: 'A' toStateNamed: 'B'.
+	builder startFromStateNamed: 'A'.
 	machine := builder build.
 
 	transitions := self transitionsFromInitialStateOf: machine.
@@ -149,7 +184,7 @@ StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromTo [
 ]
 
 { #category : #tests }
-StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromToAllowedWhenDoingTriggeredBy [
+StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromStateNamedToStateNamedAllowedWhenCompletedUsingTriggeredBy [
 
 	| builder machine transitions stream |
 
@@ -160,23 +195,14 @@ StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromToAllowedWhenD
 	builder addStateNamed: 'C'.
 	builder
 		addTransitionNamed: 'Manual'
-		from: 'A'
-		to: 'B'
+		fromStateNamed: 'A'
+		toStateNamed: 'B'
 		allowedWhen: (TransitionConditionExample readingFrom: stream)
-		doing: [ stream
-				nextPutAll: 'Manual...done';
+		completedUsing: [ stream
+				nextPutAll: 'Manual';
 				cr ]
-		triggeredBy: (PluggableTriggerExample activatedWhen: [ false ]).
-	builder
-		addTransitionNamed: 'Automatic'
-		from: 'B'
-		to: 'C'
-		allowedWhen: (TransitionConditionExample readingFrom: stream)
-		doing: [ stream
-				nextPutAll: 'Auto...done';
-				cr ]
-		triggeredBy: (PluggableTriggerExample activatedWhen: [ true ]).
-	builder declareAsInitialState: 'A'.
+		triggeredBy: ManualTransitionTrigger new.
+	builder startFromStateNamed: 'A'.
 	machine := builder build.
 
 	self assert: (self transitionsFromInitialStateOf: machine) isEmpty.
@@ -190,10 +216,47 @@ StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromToAllowedWhenD
 		assert: transitions anyOne source name equals: 'A';
 		assert: transitions anyOne destination name equals: 'B'.
 
-	self applyOnlyTransitionOf: machine.
+	self applyOnlyTransitionOf: machine writingTo: stream.
+	self assert: stream contents equals: 'Ready<r>Manual<r>Done<r>' expandMacros
+]
+
+{ #category : #tests }
+StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromStateNamedToStateNamedAllowedWhenStartedUsingTriggeredBy [
+
+	| builder machine transitions stream |
+
+	stream := WriteStream on: String new.
+	builder := StateMachineSpecificationBuilder new.
+	builder addStateNamed: 'A'.
+	builder addStateNamed: 'B'.
+	builder addStateNamed: 'C'.
+	builder
+		addTransitionNamed: 'Manual'
+		fromStateNamed: 'A'
+		toStateNamed: 'B'
+		allowedWhen: (TransitionConditionExample readingFrom: stream)
+		startedUsing: [ :context :completeBlock | 
+			stream
+				nextPutAll: 'Manual';
+				cr.
+			completeBlock value ]
+		triggeredBy: ManualTransitionTrigger new.
+	builder startFromStateNamed: 'A'.
+	machine := builder build.
+
+	self assert: (self transitionsFromInitialStateOf: machine) isEmpty.
+
+	stream
+		nextPutAll: 'Ready';
+		cr.
+	transitions := self transitionsFromInitialStateOf: machine.
 	self
-		assert: stream contents
-		equals: 'Ready<r>Manual...done<r>Auto...done<r>' expandMacros
+		assert: transitions size equals: 1;
+		assert: transitions anyOne source name equals: 'A';
+		assert: transitions anyOne destination name equals: 'B'.
+
+	self applyOnlyTransitionOf: machine writingTo: stream.
+	self assert: stream contents equals: 'Ready<r>Manual<r>Done<r>' expandMacros
 ]
 
 { #category : #tests }
@@ -222,7 +285,7 @@ StateMachineSpecificationBuilderTest >> testInitialStateMustBeDefinedFirst [
 	builder addStateNamed: 'A'.
 
 	self
-		should: [ builder addTransitionFrom: 'A' to: 'B' ]
+		should: [ builder addTransitionFromStateNamed: 'A' toStateNamed: 'B' ]
 		raise: InstanceCreationFailed
 		withExceptionDo:
 			[ :error | self assert: error messageText equals: 'Couldn''t find a single state named B.' ]
@@ -235,7 +298,7 @@ StateMachineSpecificationBuilderTest >> testStatesInTransitionsMustBeDefined [
 
 	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
-	builder declareAsInitialState: 'B'.
+	builder startFromStateNamed: 'B'.
 
 	self
 		should: [ builder build ]
@@ -252,17 +315,17 @@ StateMachineSpecificationBuilderTest >> testThreeStatesAndTwoTransitions [
 	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 	builder addStateNamed: 'B'.
-	builder addTransitionFrom: 'A' to: 'B'.
+	builder addTransitionFromStateNamed: 'A' toStateNamed: 'B'.
 	builder addStateNamed: 'C'.
-	builder addTransitionFrom: 'B' to: 'C'.
-	builder declareAsInitialState: 'A'.
+	builder addTransitionFromStateNamed: 'B' toStateNamed: 'C'.
+	builder startFromStateNamed: 'A'.
 	machine := builder build.
 
 	self assert: machine initialState name equals: 'A'.
 
 	transitions := machine
 		transitionsFrom: machine initialState
-		allowedWithin: StateMachineContextExample new.
+		allowedWithin: StateMachineSpecificationContextExample new.
 	self
 		assert: transitions size equals: 1;
 		assert: transitions anyOne source name equals: 'A';
@@ -270,7 +333,7 @@ StateMachineSpecificationBuilderTest >> testThreeStatesAndTwoTransitions [
 
 	transitions := machine
 		transitionsFrom: transitions anyOne destination
-		allowedWithin: StateMachineContextExample new.
+		allowedWithin: StateMachineSpecificationContextExample new.
 	self
 		assert: transitions size equals: 1;
 		assert: transitions anyOne source name equals: 'B';
@@ -285,7 +348,7 @@ StateMachineSpecificationBuilderTest >> testWithMoreThanOneStateTheInitialStateM
 	builder := StateMachineSpecificationBuilder new.
 	builder addStateNamed: 'A'.
 	builder addStateNamed: 'B'.
-	builder addTransitionFrom: 'A' to: 'B'.
+	builder addTransitionFromStateNamed: 'A' toStateNamed: 'B'.
 
 	self
 		should: [ builder build ]
@@ -301,5 +364,5 @@ StateMachineSpecificationBuilderTest >> transitionsFromInitialStateOf: machine [
 
 	^ machine
 		transitionsFrom: machine initialState
-		allowedWithin: StateMachineContextExample new
+		allowedWithin: StateMachineSpecificationContextExample new
 ]

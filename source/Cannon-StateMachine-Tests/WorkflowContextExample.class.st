@@ -9,10 +9,9 @@ Class {
 		'date',
 		'trader',
 		'settlementDate',
-		'rollbacks',
-		'stateMachineSpecificationBinding'
+		'rollbacks'
 	],
-	#category : #'Cannon-Workflow-Tests'
+	#category : #'Cannon-StateMachine-Tests'
 }
 
 { #category : #'instance creation' }
@@ -57,7 +56,6 @@ WorkflowContextExample >> initializeFor: aUserName on: aDate managingTradeOf: aT
 	trader := aTrader.
 	settlementDate := aSettlementDate.
 
-	stateMachineSpecificationBinding := Binding undefinedExplainedBy: 'No machine has been indicated yet'.
 	self resetRollbacks 
 ]
 
@@ -68,9 +66,8 @@ WorkflowContextExample >> loggedUser [
 ]
 
 { #category : #processing }
-WorkflowContextExample >> readyToApply: aTransitionSpecification of: aStateMachineSpecification [
+WorkflowContextExample >> readyToStartTransition [
 
-	stateMachineSpecificationBinding := Binding to: aStateMachineSpecification.
 	self resetRollbacks
 ]
 
@@ -78,12 +75,6 @@ WorkflowContextExample >> readyToApply: aTransitionSpecification of: aStateMachi
 WorkflowContextExample >> resetRollbacks [
 
 	rollbacks := OrderedCollection new
-]
-
-{ #category : #accessing }
-WorkflowContextExample >> stateMachineSpec [
-
-	^ stateMachineSpecificationBinding content
 ]
 
 { #category : #accessing }

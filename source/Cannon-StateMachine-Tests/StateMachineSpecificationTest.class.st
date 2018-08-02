@@ -10,7 +10,7 @@ Class {
 { #category : #'private - accessing' }
 StateMachineSpecificationTest >> stateNamed: aName [
 
-	^ StateSpecification named: aName onEntry: [  ] onExit: [  ]
+	^ MachineState named: aName onEntry: [  ] onExit: [  ]
 ]
 
 { #category : #tests }
@@ -55,7 +55,7 @@ StateMachineSpecificationTest >> testIsAllowedWithin [
 
 	stream := WriteStream on: String new.
 	states := OrderedCollection with: (self stateNamed: 'a') with: (self stateNamed: 'b').
-	transition := TransitionSpecification
+	transition := MachineTransition
 		unnamedFrom: states first
 		to: states last
 		allowedWhen: (TransitionConditionExample readingFrom: stream)
@@ -65,20 +65,20 @@ StateMachineSpecificationTest >> testIsAllowedWithin [
 		transitioningThrough: (Array with: transition)
 		startingFrom: states first.
 
-	self deny: (machine is: transition allowedWithin: StateMachineContextExample new).
+	self deny: (machine is: transition allowedWithin: StateMachineSpecificationContextExample new).
 	stream
 		nextPutAll: 'Ready';
 		cr.
-	self assert: (machine is: transition allowedWithin: StateMachineContextExample new).
+	self assert: (machine is: transition allowedWithin: StateMachineSpecificationContextExample new).
 
-	transition := TransitionSpecification
+	transition := MachineTransition
 		unnamedFrom: states first
 		to: states last
 		allowedWhen: (ArithmeticCondition toBeEqualTo: 0)
 		doing: [  ]
 		triggeredBy: ManualTransitionTrigger new.
 	self
-		should: [ machine is: transition allowedWithin: StateMachineContextExample new ]
+		should: [ machine is: transition allowedWithin: StateMachineSpecificationContextExample new ]
 		raise: ObjectNotFound
 		withExceptionDo: [ :exception | 
 			self
@@ -150,7 +150,25 @@ StateMachineSpecificationTest >> testRepeatedTransitionsAreNotAllowed [
 ]
 
 { #category : #tests }
-StateMachineSpecificationTest >> testTransitioningThroughStartingFromBuildingContextWith [
+StateMachineSpecificationTest >> testStateNamedIfNone [
+
+	| check state transition machine |
+
+	state := self stateNamed: 'a'.
+	transition := self transitionFrom: state to: state.
+	machine := StateMachineSpecification
+		transitioningThrough: (Array with: transition)
+		startingFrom: state.
+
+	self assert: (machine stateNamed: 'a' ifNone: [ self fail ]) equals: state.
+
+	check := false.
+	machine stateNamed: 'b' ifNone: [ check := true ].
+	self assert: check
+]
+
+{ #category : #tests }
+StateMachineSpecificationTest >> testTransitioningThroughStartingFrom [
 
 	| states transitions machine |
 
@@ -175,7 +193,7 @@ StateMachineSpecificationTest >> testTransitioningThroughStartingFromBuildingCon
 { #category : #'private - accessing' }
 StateMachineSpecificationTest >> transitionFrom: aSource to: aTarget [
 
-	^ TransitionSpecification
+	^ MachineTransition
 		unnamedFrom: aSource
 		to: aTarget
 		allowedWhen: (CompositeCondition satisfyingAll: #())
@@ -186,7 +204,7 @@ StateMachineSpecificationTest >> transitionFrom: aSource to: aTarget [
 { #category : #'private - accessing' }
 StateMachineSpecificationTest >> transitionNamed: aName from: aSource to: aTarget [
 
-	^ TransitionSpecification
+	^ MachineTransition
 		named: aName
 		from: aSource
 		to: aTarget

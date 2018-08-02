@@ -6,13 +6,66 @@ Class {
 	#superclass : #WillowSession,
 	#instVars : [
 		'rollbacks',
-		'stateMachineSpecificationBinding',
 		'nextActivityOptional',
 		'isFocused',
 		'interactions'
 	],
 	#category : #'Cannon-Willow-Examples'
 }
+
+{ #category : #'private - interaction' }
+WorkflowSessionExample >> applyVisualStylesTo: style [
+
+	| color |
+
+	color := CssRGBColor
+		red: 122
+		green: 125
+		blue: 167
+		alpha: 0.72.
+
+	style
+		textAlign: #center;
+		width: 30 vw;
+		height: 30 vh;
+		position: #absolute;
+		top: 0 px;
+		margin: 0;
+		padding: 0;
+		borderTop: (Array with: 35 vh with: #solid with: color);
+		borderBottom: (Array with: 35 vh with: #solid with: color);
+		borderLeft: (Array with: 35 vw with: #solid with: color);
+		borderRight: (Array with: 35 vw with: #solid with: color);
+		background: color;
+		display: #grid
+]
+
+{ #category : #'private - interaction' }
+WorkflowSessionExample >> buttonToAccept: aBlock thenRender: identifiedView [
+
+	| button |
+
+	button := self componentSupplier asynchronicButtonLabeled: 'Ok' applying: [  ].
+	button onTrigger
+		determineBehaviorByEvaluating: [ :response :content | 
+			self
+				configure: response
+				toEvaluate: aBlock
+				with: content
+				thenRender: identifiedView ]
+		with: (JSStream on: '$("textarea").val()').
+	^ button
+]
+
+{ #category : #'private - interaction' }
+WorkflowSessionExample >> buttonToCancelThenRender: anIdentifiedView [
+
+	| button |
+
+	button := self componentSupplier asynchronicButtonLabeled: 'Cancel' applying: [  ].
+	self configure: button onTrigger toCloseDialogsThenRender: anIdentifiedView.
+	^ button
+]
 
 { #category : #interaction }
 WorkflowSessionExample >> configure: aResponse afterEvaluating: aBlock renderingTo: anIdentifiedView [
@@ -22,16 +75,34 @@ WorkflowSessionExample >> configure: aResponse afterEvaluating: aBlock rendering
 	aResponse onReturn render: anIdentifiedView
 ]
 
+{ #category : #'private - interaction' }
+WorkflowSessionExample >> configure: anInteraction toCloseDialogsThenRender: identifiedView [
+
+	^ anInteraction
+		executeOnClient: [ :script :canvas | 
+			script
+				<< (canvas jQuery with: 'dialog') remove;
+				<<
+					((canvas jQuery class: Willow classification >> #dialogContainer) children: 'script')
+						remove ];
+		render: identifiedView
+]
+
+{ #category : #'private - interaction' }
+WorkflowSessionExample >> configure: aResponse toEvaluate: aBlock with: aModel thenRender: anIdentifiedView [
+
+	^ [ aBlock value: aModel.
+	self configure: aResponse onReturn toCloseDialogsThenRender: anIdentifiedView ]
+		on: AssertionFailed
+		do: [ :aSignal | 
+			aResponse onReturn inform: aSignal messageText.
+			aSignal return ]
+]
+
 { #category : #'private - accessing' }
 WorkflowSessionExample >> dialogCommandsFor: theDialog [
 
-	^ (theDialog
-		setStyleTo: [ :style | 
-			style
-				width: 300 px;
-				height: 100 px;
-				position: #absolute;
-				top: 50 px ]) + (theDialog setAttribute: 'open' to: true)
+	^ theDialog setStyleTo: [ :style | self applyVisualStylesTo: style ]
 ]
 
 { #category : #processing }
@@ -75,7 +146,7 @@ WorkflowSessionExample >> loseFocus [
 ]
 
 { #category : #interaction }
-WorkflowSessionExample >> openDialogToAccept: aBlock [
+WorkflowSessionExample >> openDialogStating: aMessage whenAccepted: aCompleteBlock [
 
 	interactions
 		add: [ :response :identifiedView | 
@@ -83,33 +154,31 @@ WorkflowSessionExample >> openDialogToAccept: aBlock [
 				open: [ :canvas | 
 					canvas dialog
 						apply: [ :theDialog | self dialogCommandsFor: theDialog ];
-						with: [ self renderDialogToAccept: aBlock thenRender: identifiedView on: canvas ] ] ]
+						with: [ self
+								renderDialogStating: aMessage
+								whenAcceptedDo: aCompleteBlock
+								thenRender: identifiedView
+								on: canvas ] ] ]
 ]
 
 { #category : #processing }
-WorkflowSessionExample >> readyToApply: aTransitionSpecification of: aStateMachineSpecification [
+WorkflowSessionExample >> readyToStartTransition [
 
-	stateMachineSpecificationBinding := Binding to: aStateMachineSpecification.
 	self resetRollbacks.
 	self resetInteractions
 ]
 
-{ #category : #interaction }
-WorkflowSessionExample >> renderDialogToAccept: aBlock thenRender: identifiedView on: aCanvas [
+{ #category : #'private - interaction' }
+WorkflowSessionExample >> renderDialogStating: aMessage whenAcceptedDo: aCompleteBlock thenRender: anIdentifiedView on: aCanvas [
 
-	| button |
-
-	button := self componentSupplier asynchronicButtonLabeled: 'Ready' applying: [  ].
-	button onTrigger
-		evaluate: aBlock;
-		render: identifiedView.
+	(aMessage substrings: '.') do: [ :sentence | aCanvas span: sentence ].
 	aCanvas
-		span: 'List some initial ideas';
 		textArea;
-		render: button
+		render: (self buttonToAccept: aCompleteBlock thenRender: anIdentifiedView);
+		render: (self buttonToCancelThenRender: anIdentifiedView)
 ]
 
-{ #category : #processing }
+{ #category : #'private - interaction' }
 WorkflowSessionExample >> resetInteractions [
 
 	interactions := OrderedCollection new
@@ -119,12 +188,6 @@ WorkflowSessionExample >> resetInteractions [
 WorkflowSessionExample >> resetRollbacks [
 
 	rollbacks := OrderedCollection new
-]
-
-{ #category : #accessing }
-WorkflowSessionExample >> stateMachineSpec [
-
-	^ stateMachineSpecificationBinding content
 ]
 
 { #category : #processing }

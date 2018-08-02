@@ -7,7 +7,7 @@ Class {
 	#instVars : [
 		'conditionCommand'
 	],
-	#category : #'Cannon-Workflow-Tests'
+	#category : #'Cannon-StateMachine-Tests'
 }
 
 { #category : #'instance creation' }
@@ -25,5 +25,5 @@ PluggableConditionExample >> initializeEvaluating: aBlock [
 { #category : #testing }
 PluggableConditionExample >> isSatisfiedBy: aContext [
 
-	^ conditionCommand value: aContext
+	^ conditionCommand cull: aContext
 ]

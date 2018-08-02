@@ -2,30 +2,32 @@
 A TransitionSpecificationTest is a test class for testing the behavior of TransitionSpecification
 "
 Class {
-	#name : #TransitionSpecificationTest,
+	#name : #MachineTransitionTest,
 	#superclass : #TestCase,
 	#category : #'Cannon-StateMachine-Tests'
 }
 
 { #category : #'private - accessing' }
-TransitionSpecificationTest >> stateNamed: aName [
+MachineTransitionTest >> stateNamed: aName [
 
-	^ StateSpecification named: aName onEntry: [  ] onExit: [  ]
+	^ MachineState named: aName onEntry: [  ] onExit: [  ]
 ]
 
 { #category : #tests }
-TransitionSpecificationTest >> testNamedFromToAllowedWhenDoing [
+MachineTransitionTest >> testNamedFromToAllowedWhenDoingTriggeredBy [
 
 	| states transition context |
 
 	context := WriteStream on: String new.
 	states := Array with: (self stateNamed: 'a') with: (self stateNamed: 'b').
-	transition := TransitionSpecification
+	transition := MachineTransition
 		named: 'move'
 		from: states first
 		to: states last
 		allowedWhen: (ArithmeticCondition toBeEqualTo: 0)
-		doing: [ :currentContext | currentContext nextPutAll: '...Transitioning...' ]
+		doing: [ :currentContext :completeBlock | 
+			currentContext nextPutAll: '...Transitioning...'.
+			completeBlock value ]
 		triggeredBy: ManualTransitionTrigger new.
 
 	self
@@ -34,23 +36,23 @@ TransitionSpecificationTest >> testNamedFromToAllowedWhenDoing [
 		assert: (transition isAllowedWithin: context contents size);
 		deny: (transition shouldBeTriggeredWithin: context).
 
-	transition affect: context.
-	self assert: context contents equals: '...Transitioning...'.
+	transition affect: context whenComplete: [ context nextPutAll: 'Done!' ].
+	self assert: context contents equals: '...Transitioning...Done!'.
 	self deny: (transition isAllowedWithin: context).
 
 	transition
 		withNameDo: [ :name | context nextPutAll: name ]
 		ifUnnamed: [ context nextPutAll: 'None' ].
-	self assert: context contents equals: '...Transitioning...move'
+	self assert: context contents equals: '...Transitioning...Done!move'
 ]
 
 { #category : #tests }
-TransitionSpecificationTest >> testPrintOn [
+MachineTransitionTest >> testPrintOn [
 
 	| states transition |
 
 	states := Array with: (self stateNamed: 'a') with: (self stateNamed: 'b').
-	transition := TransitionSpecification
+	transition := MachineTransition
 		unnamedFrom: states first
 		to: states last
 		allowedWhen: (ArithmeticCondition toBeEqualTo: 0)
@@ -58,7 +60,7 @@ TransitionSpecificationTest >> testPrintOn [
 		triggeredBy: ManualTransitionTrigger new.
 	self assert: transition asString equals: 'a-->b'.
 
-	transition := TransitionSpecification
+	transition := MachineTransition
 		named: 'move'
 		from: states first
 		to: states last
@@ -69,17 +71,19 @@ TransitionSpecificationTest >> testPrintOn [
 ]
 
 { #category : #tests }
-TransitionSpecificationTest >> testUnnamedFromToAllowedWhenDoing [
+MachineTransitionTest >> testUnnamedFromToAllowedWhenDoingTriggeredBy [
 
 	| transition states context |
 
 	context := WriteStream on: String new.
 	states := Array with: (self stateNamed: 'a') with: (self stateNamed: 'b').
-	transition := TransitionSpecification
+	transition := MachineTransition
 		unnamedFrom: states first
 		to: states last
 		allowedWhen: (ArithmeticCondition toBeEqualTo: 0)
-		doing: [ :currentContext | currentContext nextPutAll: '...Transitioning...' ]
+		doing: [ :currentContext :completeBlock | 
+			currentContext nextPutAll: '...Transitioning...'.
+			completeBlock value ]
 		triggeredBy: ManualTransitionTrigger new.
 
 	self
@@ -88,12 +92,12 @@ TransitionSpecificationTest >> testUnnamedFromToAllowedWhenDoing [
 		assert: (transition isAllowedWithin: context contents size);
 		deny: (transition shouldBeTriggeredWithin: context).
 
-	transition affect: context.
-	self assert: context contents equals: '...Transitioning...'.
+	transition affect: context whenComplete: [ context nextPutAll: 'Done!' ].
+	self assert: context contents equals: '...Transitioning...Done!'.
 	self deny: (transition isAllowedWithin: context).
 
 	transition
 		withNameDo: [ :name | context nextPutAll: name ]
 		ifUnnamed: [ context nextPutAll: 'None' ].
-	self assert: context contents equals: '...Transitioning...None'
+	self assert: context contents equals: '...Transitioning...Done!None'
 ]

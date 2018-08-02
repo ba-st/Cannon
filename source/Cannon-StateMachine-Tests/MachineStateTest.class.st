@@ -2,17 +2,17 @@
 A StateSpecificationTest is a test class for testing the behavior of StateSpecification
 "
 Class {
-	#name : #StateSpecificationTest,
+	#name : #MachineStateTest,
 	#superclass : #TestCase,
 	#category : #'Cannon-StateMachine-Tests'
 }
 
 { #category : #tests }
-StateSpecificationTest >> testNamedOnEntryOnExit [
+MachineStateTest >> testNamedOnEntryOnExit [
 
 	| state context |
 
-	state := StateSpecification
+	state := MachineState
 		named: 'First'
 		onEntry: [ :currentContext | 
 			currentContext
@@ -39,11 +39,11 @@ StateSpecificationTest >> testNamedOnEntryOnExit [
 ]
 
 { #category : #tests }
-StateSpecificationTest >> testPrintOn [
+MachineStateTest >> testPrintOn [
 
 	| state |
 
-	state := StateSpecification named: 'First' onEntry: [  ] onExit: [  ].
+	state := MachineState named: 'First' onEntry: [  ] onExit: [  ].
 
 	self assert: state asString equals: 'First'
 ]

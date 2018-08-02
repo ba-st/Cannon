@@ -16,17 +16,16 @@ BaselineOfCannon >> baseline: spec [
 		do: [ self setUpDependencies: spec.
 
 			spec
-				package: 'Cannon-StateMachine' with: [ spec requires: #('Buoy' 'Mole') ];
-				package: 'Cannon-Workflow' with: [ spec requires: #('Cannon-StateMachine') ];
+				package: 'Cannon-StateMachine' with: [ spec requires: #('Buoy') ];
 				package: 'Cannon-StateMachine-Tests' with: [ spec requires: 'Cannon-StateMachine' ];
-				package: 'Cannon-Workflow-Tests' with: [ spec requires: 'Cannon-Workflow' ];
-				package: 'Cannon-Willow-Examples' with: [ spec requires: #('Cannon-Workflow-Tests' 'Willow') ].
+				package: 'Cannon-Willow-Examples'
+					with: [ spec requires: #('Cannon-Workflow-Tests' 'Willow') ].
 
 			spec
-				group: 'Deployment' with: #('Cannon-StateMachine' 'Cannon-Workflow');
-				group: 'Development' with: #('Cannon-StateMachine-Tests' 'Cannon-Workflow-Tests');
+				group: 'Deployment' with: #('Cannon-StateMachine');
+				group: 'Development' with: #('Cannon-StateMachine-Tests');
 				group: 'Examples' with: #('Cannon-Willow-Examples');
-				group: 'default' with: #('Deployment' 'Examples') ]
+				group: 'default' with: #('Development' 'Examples') ]
 ]
 
 { #category : #baselines }
@@ -36,12 +35,6 @@ BaselineOfCannon >> setUpDependencies: spec [
 		baseline: 'Buoy'
 		with: [ spec
 				repository: 'github://ba-st/Buoy:v4/source';
-				loads: #('Deployment') ].
-
-	spec
-		baseline: 'Mole'
-		with: [ spec
-				repository: 'github://ba-st/Mole:v3/source';
 				loads: #('Deployment') ].
 
 	spec

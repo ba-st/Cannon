@@ -21,60 +21,87 @@ StateMachineSpecificationBuilder >> addStateNamed: aName [
 { #category : #configuring }
 StateMachineSpecificationBuilder >> addStateNamed: aName onEntry: anEntryBlock onExit: anExitBlock [
 
-	states add: (StateSpecification named: aName onEntry: anEntryBlock onExit: anExitBlock)
+	states add: (MachineState named: aName onEntry: anEntryBlock onExit: anExitBlock)
 ]
 
 { #category : #configuring }
-StateMachineSpecificationBuilder >> addTransitionFrom: aSourceStateName to: aDestinationStateName [
+StateMachineSpecificationBuilder >> addTransitionFromStateNamed: aSourceStateName toStateNamed: aDestinationStateName [
 
 	self
-		addTransitionFrom: aSourceStateName
-		to: aDestinationStateName
+		addTransitionFromStateNamed: aSourceStateName
+		toStateNamed: aDestinationStateName
 		allowedWhen: (CompositeCondition satisfyingAll: #())
-		doing: [  ]
+		completedUsing: [  ]
 		triggeredBy: ManualTransitionTrigger new
 ]
 
 { #category : #configuring }
-StateMachineSpecificationBuilder >> addTransitionFrom: aSourceStateName to: aDestinationStateName allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
+StateMachineSpecificationBuilder >> addTransitionFromStateNamed: aSourceStateName toStateNamed: aDestinationStateName allowedWhen: aCondition completedUsing: anAction triggeredBy: aTrigger [
+
+	self
+		addTransitionFromStateNamed: aSourceStateName
+		toStateNamed: aDestinationStateName
+		allowedWhen: aCondition
+		startedUsing: [ :context :actionWhenCompleted | 
+			anAction cull: context.
+			actionWhenCompleted value ]
+		triggeredBy: aTrigger
+]
+
+{ #category : #configuring }
+StateMachineSpecificationBuilder >> addTransitionFromStateNamed: aSourceStateName toStateNamed: aDestinationStateName allowedWhen: aCondition startedUsing: anAction triggeredBy: aTrigger [
 
 	| transition sourceState destinationState |
 
 	sourceState := self onlyStateNamed: aSourceStateName.
 	destinationState := self onlyStateNamed: aDestinationStateName.
-	transition := TransitionSpecification
+	transition := MachineTransition
 		unnamedFrom: sourceState
 		to: destinationState
-		allowedWhen: aConditionBlock
+		allowedWhen: aCondition
 		doing: anAction
 		triggeredBy: aTrigger.
 	transitions add: transition
 ]
 
 { #category : #configuring }
-StateMachineSpecificationBuilder >> addTransitionNamed: aName from: aSourceStateName to: aDestinationStateName [
+StateMachineSpecificationBuilder >> addTransitionNamed: aName fromStateNamed: aSourceStateName toStateNamed: aDestinationStateName [
 
 	self
 		addTransitionNamed: aName
-		from: aSourceStateName
-		to: aDestinationStateName
+		fromStateNamed: aSourceStateName
+		toStateNamed: aDestinationStateName
 		allowedWhen: (CompositeCondition satisfyingAll: #())
-		doing: [  ]
+		completedUsing: [  ]
 		triggeredBy: ManualTransitionTrigger new
 ]
 
 { #category : #configuring }
-StateMachineSpecificationBuilder >> addTransitionNamed: aName from: aSourceStateName to: aDestinationStateName allowedWhen: aConditionBlock doing: anAction triggeredBy: aTrigger [
+StateMachineSpecificationBuilder >> addTransitionNamed: aName fromStateNamed: aSourceStateName toStateNamed: aDestinationStateName allowedWhen: aCondition completedUsing: anAction triggeredBy: aTrigger [
+
+	self
+		addTransitionNamed: aName
+		fromStateNamed: aSourceStateName
+		toStateNamed: aDestinationStateName
+		allowedWhen: aCondition
+		startedUsing: [ :context :actionWhenCompleted | 
+			anAction cull: context.
+			actionWhenCompleted value ]
+		triggeredBy: aTrigger
+]
+
+{ #category : #configuring }
+StateMachineSpecificationBuilder >> addTransitionNamed: aName fromStateNamed: aSourceStateName toStateNamed: aDestinationStateName allowedWhen: aCondition startedUsing: anAction triggeredBy: aTrigger [
 
 	| transition sourceState destinationState |
 
 	sourceState := self onlyStateNamed: aSourceStateName.
 	destinationState := self onlyStateNamed: aDestinationStateName.
-	transition := TransitionSpecification
+	transition := MachineTransition
 		named: aName
 		from: sourceState
 		to: destinationState
-		allowedWhen: aConditionBlock
+		allowedWhen: aCondition
 		doing: anAction
 		triggeredBy: aTrigger.
 	transitions add: transition
@@ -90,12 +117,6 @@ StateMachineSpecificationBuilder >> build [
 	^ StateMachineSpecification
 		transitioningThrough: transitions
 		startingFrom: initialState
-]
-
-{ #category : #configuring }
-StateMachineSpecificationBuilder >> declareAsInitialState: aStateName [
-
-	initialStateNameOptional := Optional containing: aStateName
 ]
 
 { #category : #'private - accessing' }
@@ -135,4 +156,10 @@ StateMachineSpecificationBuilder >> onlyStateNamed: initialStateName [
 		because: ('Couldn''t find a single state named <1s>.' expandMacrosWith: initialStateName)
 		raising: InstanceCreationFailed.
 	^ candidates anyOne
+]
+
+{ #category : #configuring }
+StateMachineSpecificationBuilder >> startFromStateNamed: aStateName [
+
+	initialStateNameOptional := Optional containing: aStateName
 ]

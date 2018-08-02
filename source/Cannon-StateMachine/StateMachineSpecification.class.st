@@ -11,24 +11,24 @@ Class {
 	#category : #'Cannon-StateMachine'
 }
 
-{ #category : #'instance creation' }
-StateMachineSpecification class >> assert: aStateSpec isSourceOfAny: transitionSpecs [
+{ #category : #'private - preconditions' }
+StateMachineSpecification class >> assert: aState isSourceOfAny: aTransitionCollection [
 
-	transitionSpecs
-		detect: [ :transition | transition source = aStateSpec ]
+	aTransitionCollection
+		detect: [ :transition | transition source = aState ]
 		ifNone: [ InstanceCreationFailed
 				signal:
 					('The initial state (<1s>) must be source of at least one of the transitions.'
-						expandMacrosWith: aStateSpec name) ]
+						expandMacrosWith: aState name) ]
 ]
 
 { #category : #'private - preconditions' }
-StateMachineSpecification class >> assertStateNamesAreNotRepeatedIn: transitionSpecs [
+StateMachineSpecification class >> assertStateNamesAreNotRepeatedIn: aTransitionCollection [
 
 	| states stateNames repeatedNames |
 
 	states := Set new.
-	transitionSpecs
+	aTransitionCollection
 		do: [ :transition | 
 			states
 				add: transition source;
@@ -46,12 +46,12 @@ StateMachineSpecification class >> assertStateNamesAreNotRepeatedIn: transitionS
 ]
 
 { #category : #'private - preconditions' }
-StateMachineSpecification class >> assertTransitionsAreNotRepeatedIn: transitionSpecs [
+StateMachineSpecification class >> assertTransitionsAreNotRepeatedIn: aTransitionCollection [
 
 	| transitionNames repeatedNames |
 
 	transitionNames := Bag new.
-	transitionSpecs
+	aTransitionCollection
 		do: [ :transition | 
 			transition
 				withNameDo: [ :transitionName | 
@@ -73,14 +73,12 @@ StateMachineSpecification class >> assertTransitionsAreNotRepeatedIn: transition
 ]
 
 { #category : #'instance creation' }
-StateMachineSpecification class >> transitioningThrough: transitionSpecs startingFrom: aStateSpec [
+StateMachineSpecification class >> transitioningThrough: aTransitionCollection startingFrom: aState [
 
-	self assert: aStateSpec isSourceOfAny: transitionSpecs.
-	self assertTransitionsAreNotRepeatedIn: transitionSpecs.
-	self assertStateNamesAreNotRepeatedIn: transitionSpecs.
-	^ self new
-		initializeTransitioningThrough: transitionSpecs
-		startingFrom: aStateSpec
+	self assert: aState isSourceOfAny: aTransitionCollection.
+	self assertTransitionsAreNotRepeatedIn: aTransitionCollection.
+	self assertStateNamesAreNotRepeatedIn: aTransitionCollection.
+	^ self new initializeTransitioningThrough: aTransitionCollection startingFrom: aState
 ]
 
 { #category : #accessing }
@@ -90,21 +88,21 @@ StateMachineSpecification >> initialState [
 ]
 
 { #category : #initialization }
-StateMachineSpecification >> initializeTransitioningThrough: transitionSpecs startingFrom: aStateSpec [
+StateMachineSpecification >> initializeTransitioningThrough: aTransitionCollection startingFrom: aState [
 
-	transitions := transitionSpecs.
-	initialState := aStateSpec
+	transitions := aTransitionCollection.
+	initialState := aState
 ]
 
 { #category : #testing }
-StateMachineSpecification >> is: aTransitionSpec allowedWithin: anExternalContext [
+StateMachineSpecification >> is: aTransition allowedWithin: anExternalContext [
 
-	^ (transitions includes: aTransitionSpec)
-		ifTrue: [ aTransitionSpec isAllowedWithin: anExternalContext ]
+	^ (transitions includes: aTransition)
+		ifTrue: [ aTransition isAllowedWithin: anExternalContext ]
 		ifFalse: [ ObjectNotFound
 				signal:
 					('<1p> is not a transition known to this machine specification.'
-						expandMacrosWith: aTransitionSpec) ]
+						expandMacrosWith: aTransition) ]
 ]
 
 { #category : #accessing }
@@ -122,9 +120,9 @@ StateMachineSpecification >> stateNamed: aStateName ifNone: aBlock [
 ]
 
 { #category : #accessing }
-StateMachineSpecification >> transitionsFrom: aStateSpec allowedWithin: anExternalContext [
+StateMachineSpecification >> transitionsFrom: aState allowedWithin: anExternalContext [
 
 	^ transitions
 		select:
-			[ :transition | transition source = aStateSpec and: [ transition isAllowedWithin: anExternalContext ] ]
+			[ :transition | transition source = aState and: [ transition isAllowedWithin: anExternalContext ] ]
 ]

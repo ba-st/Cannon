@@ -2,7 +2,7 @@
 StateSpecification gives the name and entry/exit behavior of a given state in a state machine.
 "
 Class {
-	#name : #StateSpecification,
+	#name : #MachineState,
 	#superclass : #Object,
 	#instVars : [
 		'name',
@@ -13,25 +13,25 @@ Class {
 }
 
 { #category : #'instance creation' }
-StateSpecification class >> named: aName onEntry: anEntryCommand onExit: anExitCommand [
+MachineState class >> named: aName onEntry: anEntryCommand onExit: anExitCommand [
 
 	^ self new initializeNamed: aName onEntry: anEntryCommand onExit: anExitCommand
 ]
 
 { #category : #accessing }
-StateSpecification >> enterAffecting: aContext whenComplete: aCompleteBlock [
+MachineState >> enterAffecting: aContext [
 
-	^ entryCommand cull: aContext cull: aCompleteBlock
+	^ entryCommand cull: aContext
 ]
 
 { #category : #accessing }
-StateSpecification >> exitAffecting: aContext whenComplete: aCompleteBlock [
+MachineState >> exitAffecting: aContext [
 
-	^ exitCommand cull: aContext cull: aCompleteBlock
+	^ exitCommand cull: aContext
 ]
 
 { #category : #initialization }
-StateSpecification >> initializeNamed: aName onEntry: anEntryCommand onExit: anExitCommand [
+MachineState >> initializeNamed: aName onEntry: anEntryCommand onExit: anExitCommand [
 
 	name := aName.
 	entryCommand := anEntryCommand.
@@ -39,13 +39,13 @@ StateSpecification >> initializeNamed: aName onEntry: anEntryCommand onExit: anE
 ]
 
 { #category : #accessing }
-StateSpecification >> name [
+MachineState >> name [
 
 	^ name
 ]
 
 { #category : #printing }
-StateSpecification >> printOn: aStream [
+MachineState >> printOn: aStream [
 
 	aStream nextPutAll: self name asString
 ]
