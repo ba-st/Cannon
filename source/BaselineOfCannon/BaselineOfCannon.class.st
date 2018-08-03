@@ -19,13 +19,13 @@ BaselineOfCannon >> baseline: spec [
 				package: 'Cannon-StateMachine' with: [ spec requires: #('Buoy') ];
 				package: 'Cannon-StateMachine-Tests' with: [ spec requires: 'Cannon-StateMachine' ];
 				package: 'Cannon-Willow-Examples'
-					with: [ spec requires: #('Cannon-Workflow-Tests' 'Willow') ].
+					with: [ spec requires: #('Cannon-StateMachine-Tests' 'Willow') ].
 
 			spec
 				group: 'Deployment' with: #('Cannon-StateMachine');
 				group: 'Development' with: #('Cannon-StateMachine-Tests');
 				group: 'Examples' with: #('Cannon-Willow-Examples');
-				group: 'default' with: #('Development' 'Examples') ]
+				group: 'default' with: #('Deployment') ]
 ]
 
 { #category : #baselines }
