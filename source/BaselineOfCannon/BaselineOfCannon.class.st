@@ -1,3 +1,6 @@
+"
+I'm the baseline of Cannon
+"
 Class {
 	#name : #BaselineOfCannon,
 	#superclass : #BaselineOf,
@@ -10,16 +13,18 @@ BaselineOfCannon >> baseline: spec [
 	<baseline>
 	spec
 		for: #common
-		do: [
-			self setUpDependencies: spec.
+		do: [ self setUpDependencies: spec.
 
 			spec
-				package: 'Cannon' with: [ spec requires: #('Buoy' 'Mole') ];
-				package: 'Cannon-Tests' with: [ spec requires: 'Cannon' ].
+				package: 'Cannon-StateMachine' with: [ spec requires: #('Buoy') ];
+				package: 'Cannon-StateMachine-Tests' with: [ spec requires: 'Cannon-StateMachine' ];
+				package: 'Cannon-Willow-Examples'
+					with: [ spec requires: #('Cannon-StateMachine-Tests' 'Willow') ].
 
 			spec
-				group: 'Deployment' with: #('Cannon');
-				group: 'Development' with: #('Cannon-Tests');
+				group: 'Deployment' with: #('Cannon-StateMachine');
+				group: 'Development' with: #('Cannon-StateMachine-Tests');
+				group: 'Examples' with: #('Cannon-Willow-Examples');
 				group: 'default' with: #('Deployment') ]
 ]
 
@@ -33,8 +38,8 @@ BaselineOfCannon >> setUpDependencies: spec [
 				loads: #('Deployment') ].
 
 	spec
-		baseline: 'Mole'
+		baseline: 'Willow'
 		with: [ spec
-				repository: 'github://ba-st/Mole:v3/source';
-				loads: #('Deployment') ].
+				repository: 'github://ba-st/Willow:v10/source';
+				loads: #('Willow') ]
 ]
