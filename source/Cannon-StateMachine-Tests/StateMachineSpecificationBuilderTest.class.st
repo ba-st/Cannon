@@ -12,7 +12,7 @@ StateMachineSpecificationBuilderTest >> applyOnlyTransitionOf: machine writingTo
 
 	| candidates |
 
-	candidates := (self transitionsFromInitialStateOf: machine) anyOne.
+	candidates := (self transitionsFromInitialStateOf: machine) any.
 
 	(TransitionStarter within: StateMachineSpecificationContextExample new for: machine)
 		start: candidates
@@ -74,11 +74,11 @@ StateMachineSpecificationBuilderTest >> testAddTransitionFromStateNamedToStateNa
 	transitions := self transitionsFromInitialStateOf: machine.
 	self
 		assert: transitions size equals: 1;
-		assert: transitions anyOne source name equals: 'A';
-		assert: transitions anyOne destination name equals: 'B'.
+		assert: transitions any source name equals: 'A';
+		assert: transitions any destination name equals: 'B'.
 
 	stream := WriteStream on: String new.
-	transitions anyOne
+	transitions any
 		withNameDo: [ :name | self fail ]
 		ifUnnamed: [ stream nextPutAll: 'test passed' ].
 	self assert: stream contents equals: 'test passed'
@@ -113,8 +113,8 @@ StateMachineSpecificationBuilderTest >> testAddTransitionFromStateNamedToStateNa
 	transitions := self transitionsFromInitialStateOf: machine.
 	self
 		assert: transitions size equals: 1;
-		assert: transitions anyOne source name equals: 'A';
-		assert: transitions anyOne destination name equals: 'B'.
+		assert: transitions any source name equals: 'A';
+		assert: transitions any destination name equals: 'B'.
 
 	self applyOnlyTransitionOf: machine writingTo: stream.
 	self assert: stream contents equals: 'Ready<r>Manual<r>Done<r>' expandMacros
@@ -151,8 +151,8 @@ StateMachineSpecificationBuilderTest >> testAddTransitionFromStateNamedToStateNa
 	transitions := self transitionsFromInitialStateOf: machine.
 	self
 		assert: transitions size equals: 1;
-		assert: transitions anyOne source name equals: 'A';
-		assert: transitions anyOne destination name equals: 'B'.
+		assert: transitions any source name equals: 'A';
+		assert: transitions any destination name equals: 'B'.
 
 	self applyOnlyTransitionOf: machine writingTo: stream.
 	self assert: stream contents equals: 'Ready<r>Manual<r>Done<r>' expandMacros
@@ -173,11 +173,11 @@ StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromStateNamedToSt
 	transitions := self transitionsFromInitialStateOf: machine.
 	self
 		assert: transitions size equals: 1;
-		assert: transitions anyOne source name equals: 'A';
-		assert: transitions anyOne destination name equals: 'B'.
+		assert: transitions any source name equals: 'A';
+		assert: transitions any destination name equals: 'B'.
 
 	stream := WriteStream on: String new.
-	transitions anyOne
+	transitions any
 		withNameDo: [ :name | stream nextPutAll: name ]
 		ifUnnamed: [ self fail ].
 	self assert: stream contents equals: 'only'
@@ -213,8 +213,8 @@ StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromStateNamedToSt
 	transitions := self transitionsFromInitialStateOf: machine.
 	self
 		assert: transitions size equals: 1;
-		assert: transitions anyOne source name equals: 'A';
-		assert: transitions anyOne destination name equals: 'B'.
+		assert: transitions any source name equals: 'A';
+		assert: transitions any destination name equals: 'B'.
 
 	self applyOnlyTransitionOf: machine writingTo: stream.
 	self assert: stream contents equals: 'Ready<r>Manual<r>Done<r>' expandMacros
@@ -252,8 +252,8 @@ StateMachineSpecificationBuilderTest >> testAddTransitionNamedFromStateNamedToSt
 	transitions := self transitionsFromInitialStateOf: machine.
 	self
 		assert: transitions size equals: 1;
-		assert: transitions anyOne source name equals: 'A';
-		assert: transitions anyOne destination name equals: 'B'.
+		assert: transitions any source name equals: 'A';
+		assert: transitions any destination name equals: 'B'.
 
 	self applyOnlyTransitionOf: machine writingTo: stream.
 	self assert: stream contents equals: 'Ready<r>Manual<r>Done<r>' expandMacros
@@ -328,16 +328,16 @@ StateMachineSpecificationBuilderTest >> testThreeStatesAndTwoTransitions [
 		allowedWithin: StateMachineSpecificationContextExample new.
 	self
 		assert: transitions size equals: 1;
-		assert: transitions anyOne source name equals: 'A';
-		assert: transitions anyOne destination name equals: 'B'.
+		assert: transitions any source name equals: 'A';
+		assert: transitions any destination name equals: 'B'.
 
 	transitions := machine
-		transitionsFrom: transitions anyOne destination
+		transitionsFrom: transitions any destination
 		allowedWithin: StateMachineSpecificationContextExample new.
 	self
 		assert: transitions size equals: 1;
-		assert: transitions anyOne source name equals: 'B';
-		assert: transitions anyOne destination name equals: 'C'
+		assert: transitions any source name equals: 'B';
+		assert: transitions any destination name equals: 'C'
 ]
 
 { #category : #tests }

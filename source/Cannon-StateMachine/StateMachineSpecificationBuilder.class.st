@@ -130,6 +130,7 @@ StateMachineSpecificationBuilder >> initialState [
 { #category : #initialization }
 StateMachineSpecificationBuilder >> initialize [
 
+	super initialize.
 	states := Set new.
 	transitions := Set new.
 	initialStateNameOptional := Optional unused
@@ -142,7 +143,7 @@ StateMachineSpecificationBuilder >> onlyState [
 		enforce: [ states size = 1 ]
 		because: 'More than one state defined and no initial state name was indicated.'
 		raising: InstanceCreationFailed.
-	^ states anyOne
+	^ states any
 ]
 
 { #category : #'private - accessing' }
@@ -155,7 +156,7 @@ StateMachineSpecificationBuilder >> onlyStateNamed: initialStateName [
 		enforce: [ candidates size = 1 ]
 		because: ('Couldn''t find a single state named <1s>.' expandMacrosWith: initialStateName)
 		raising: InstanceCreationFailed.
-	^ candidates anyOne
+	^ candidates any
 ]
 
 { #category : #configuring }

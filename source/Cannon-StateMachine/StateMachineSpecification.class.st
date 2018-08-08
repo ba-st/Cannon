@@ -42,7 +42,9 @@ StateMachineSpecification class >> assertStateNamesAreNotRepeatedIn: aTransition
 				ifTrue: [ repeatedNames add: stateName ] ].
 	repeatedNames
 		ifNotEmpty: [ InstanceCreationFailed
-				signal: ('State names can''t be repeated (<1s>).' expandMacrosWith: repeatedNames asCommaString) ]
+				signal:
+					('State names can''t be repeated (<1s>).'
+						expandMacrosWith: ((CollectionFormatter separatingWith: ', ') format: repeatedNames)) ]
 ]
 
 { #category : #'private - preconditions' }
@@ -69,7 +71,9 @@ StateMachineSpecification class >> assertTransitionsAreNotRepeatedIn: aTransitio
 				ifTrue: [ repeatedNames add: transitionName ] ].
 	repeatedNames
 		ifNotEmpty: [ InstanceCreationFailed
-				signal: ('Transitions can''t be repeated (<1s>).' expandMacrosWith: repeatedNames asCommaString) ]
+				signal:
+					('Transitions can''t be repeated (<1s>).'
+						expandMacrosWith: ((CollectionFormatter separatingWith: ', ') format: repeatedNames)) ]
 ]
 
 { #category : #'instance creation' }
@@ -79,6 +83,12 @@ StateMachineSpecification class >> transitioningThrough: aTransitionCollection s
 	self assertTransitionsAreNotRepeatedIn: aTransitionCollection.
 	self assertStateNamesAreNotRepeatedIn: aTransitionCollection.
 	^ self new initializeTransitioningThrough: aTransitionCollection startingFrom: aState
+]
+
+{ #category : #accessing }
+StateMachineSpecification >> allTransitions [
+
+	^ transitions asArray
 ]
 
 { #category : #accessing }
