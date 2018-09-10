@@ -14,6 +14,22 @@ StateMachineSpecificationTest >> stateNamed: aName [
 ]
 
 { #category : #tests }
+StateMachineSpecificationTest >> testAllTransitions [
+
+	| states transitions machine |
+
+	states := OrderedCollection with: (self stateNamed: 'a') with: (self stateNamed: 'b').
+	transitions := OrderedCollection
+		with: (self transitionFrom: states first to: states last)
+		with: (self transitionFrom: states last to: states first).
+	machine := StateMachineSpecification
+		transitioningThrough: transitions
+		startingFrom: states first.
+
+	self assertCollection: machine allTransitions hasSameElements: transitions
+]
+
+{ #category : #tests }
 StateMachineSpecificationTest >> testInitialStateMustBeSourceOfSomeTransition [
 
 	| states transitions |
