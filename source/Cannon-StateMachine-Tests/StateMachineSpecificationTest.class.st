@@ -72,7 +72,8 @@ StateMachineSpecificationTest >> testIsAllowedWithin [
 	stream := WriteStream on: String new.
 	states := OrderedCollection with: (self stateNamed: 'a') with: (self stateNamed: 'b').
 	transition := MachineTransition
-		unnamedFrom: states first
+		named: 'Tester'
+		from: states first
 		to: states last
 		allowedWhen: (TransitionConditionExample readingFrom: stream)
 		doing: [  ]
@@ -81,14 +82,17 @@ StateMachineSpecificationTest >> testIsAllowedWithin [
 		transitioningThrough: (Array with: transition)
 		startingFrom: states first.
 
-	self deny: (machine is: transition allowedWithin: StateMachineSpecificationContextExample new).
+	self
+		deny: (machine is: transition allowedWithin: StateMachineSpecificationContextExample new).
 	stream
 		nextPutAll: 'Ready';
 		cr.
-	self assert: (machine is: transition allowedWithin: StateMachineSpecificationContextExample new).
+	self
+		assert: (machine is: transition allowedWithin: StateMachineSpecificationContextExample new).
 
 	transition := MachineTransition
-		unnamedFrom: states first
+		named: 'Tester'
+		from: states first
 		to: states last
 		allowedWhen: (ArithmeticCondition toBeEqualTo: 0)
 		doing: [  ]
@@ -99,7 +103,7 @@ StateMachineSpecificationTest >> testIsAllowedWithin [
 		withExceptionDo: [ :exception | 
 			self
 				assert: exception messageText
-				equals: 'a-->b is not a transition known to this machine specification.' ]
+				equals: 'Tester (a-->b) is not a transition known to this machine specification.' ]
 ]
 
 { #category : #tests }
@@ -210,7 +214,8 @@ StateMachineSpecificationTest >> testTransitioningThroughStartingFrom [
 StateMachineSpecificationTest >> transitionFrom: aSource to: aTarget [
 
 	^ MachineTransition
-		unnamedFrom: aSource
+		named: ('<1p> to <2p>' expandMacrosWith: aSource with: aTarget)
+		from: aSource
 		to: aTarget
 		allowedWhen: (CompositeCondition satisfyingAll: #())
 		doing: [  ]
