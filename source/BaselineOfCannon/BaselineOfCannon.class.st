@@ -16,7 +16,7 @@ BaselineOfCannon >> baseline: spec [
 		do: [ self setUpDependencies: spec.
 
 			spec
-				package: 'Cannon-StateMachine' with: [ spec requires: #('Buoy') ];
+				package: 'Cannon-StateMachine' with: [ spec requires: #('Grease' 'Buoy') ];
 				package: 'Cannon-StateMachine-Tests' with: [ spec requires: 'Cannon-StateMachine' ];
 				package: 'Cannon-Willow-Examples'
 					with: [ spec requires: #('Cannon-StateMachine-Tests' 'Willow') ].
@@ -31,6 +31,12 @@ BaselineOfCannon >> baseline: spec [
 { #category : #baselines }
 BaselineOfCannon >> setUpDependencies: spec [
 
+	spec
+		baseline: 'Grease'
+		with: [ spec
+				repository: 'github://SeasideSt/Grease:v1.3.5/repository';
+				loads: #('Grease-Core') ].
+			
 	spec
 		baseline: 'Buoy'
 		with: [ spec
