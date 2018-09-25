@@ -53,17 +53,14 @@ StateMachineSpecification class >> assertTransitionsAreNotRepeatedIn: aTransitio
 	| transitionNames repeatedNames |
 
 	transitionNames := Bag new.
-	aTransitionCollection
-		do: [ :transition | 
-			transition
-				withNameDo: [ :transitionName | 
-					transitionNames
-						add:
-							('<1s>:<2s>--><3s>'
-								expandMacrosWith: transitionName
-								with: transition source name
-								with: transition destination name) ]
-				ifUnnamed: [  ] ].
+	transitionNames
+		addAll:
+			(aTransitionCollection
+				collect: [ :transition | 
+					'<1s>:<2s>--><3s>'
+						expandMacrosWith: transition name
+						with: transition source name
+						with: transition destination name ]).
 	repeatedNames := SortedCollection new.
 	transitionNames
 		doWithOccurrences: [ :transitionName :repetitions | 

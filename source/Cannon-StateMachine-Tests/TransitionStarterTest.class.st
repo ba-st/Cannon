@@ -91,7 +91,8 @@ TransitionStarterTest >> testTransitionIsInterruptedWhenActionFails [
 	transitions := Array
 		with:
 			(MachineTransition
-				unnamedFrom: states first
+				named: 'Tester'
+				from: states first
 				to: states last
 				allowedWhen: (TransitionConditionExample readingFrom: stream)
 				doing: [ :context :completeBlock | 

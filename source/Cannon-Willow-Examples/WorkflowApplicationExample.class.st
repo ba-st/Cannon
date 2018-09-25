@@ -152,10 +152,6 @@ WorkflowApplicationExample >> renderStateAndTransitionsOn: aCanvas [
 { #category : #'private - accessing' }
 WorkflowApplicationExample >> sortedAssociationsFrom: candidates [
 
-	^ (candidates
-		collect: [ :transition | 
-			transition
-				withNameDo: [ :transitionName | transitionName -> transition ]
-				ifUnnamed: [ Error signal: 'Unnamed transition found' ] ])
+	^ (candidates collect: [ :transition | transition name -> transition ])
 		sorted: [ :a :b | a key < b key ]
 ]

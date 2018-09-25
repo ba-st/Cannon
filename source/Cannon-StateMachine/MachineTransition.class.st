@@ -8,12 +8,12 @@ Class {
 	#name : #MachineTransition,
 	#superclass : #Object,
 	#instVars : [
-		'nameOptional',
 		'source',
 		'destination',
 		'condition',
 		'action',
-		'trigger'
+		'trigger',
+		'name'
 	],
 	#category : #'Cannon-StateMachine'
 }
@@ -21,38 +21,8 @@ Class {
 { #category : #'instance creation' }
 MachineTransition class >> named: aName from: aSourceState to: aDestinationState allowedWhen: aCondition doing: anAction triggeredBy: aTrigger [
 
-	"Names are relevant to organize the state machine and its transitions.
-	They also help during debugging."
-
-	^ self
-		namedUsing: (Optional containing: aName)
-		from: aSourceState
-		to: aDestinationState
-		allowedWhen: aCondition
-		doing: anAction
-		triggeredBy: aTrigger
-]
-
-{ #category : #'private - instance creation' }
-MachineTransition class >> namedUsing: anOptional from: aSourceState to: aDestinationState allowedWhen: aCondition doing: anAction triggeredBy: aTrigger [
-
 	^ self new
-		initializeNamedUsing: anOptional
-		from: aSourceState
-		to: aDestinationState
-		allowedWhen: aCondition
-		doing: anAction
-		triggeredBy: aTrigger
-]
-
-{ #category : #'instance creation' }
-MachineTransition class >> unnamedFrom: aSourceState to: aDestinationState allowedWhen: aCondition doing: anAction triggeredBy: aTrigger [
-
-	"Names are relevant to organize the state machine and its transitions.
-	They also help during debugging."
-
-	^ self
-		namedUsing: Optional unused
+		initializeNamed: aName
 		from: aSourceState
 		to: aDestinationState
 		allowedWhen: aCondition
@@ -73,9 +43,9 @@ MachineTransition >> destination [
 ]
 
 { #category : #initialization }
-MachineTransition >> initializeNamedUsing: anOptional from: aSourceState to: aDestinationState allowedWhen: aCondition doing: anAction triggeredBy: aTrigger [
+MachineTransition >> initializeNamed: aName from: aSourceState to: aDestinationState allowedWhen: aCondition doing: anAction triggeredBy: aTrigger [
 
-	nameOptional := anOptional.
+	name := aName.
 	source := aSourceState.
 	destination := aDestinationState.
 	condition := aCondition.
@@ -89,18 +59,21 @@ MachineTransition >> isAllowedWithin: anExternalContext [
 	^ condition isSatisfiedBy: anExternalContext
 ]
 
+{ #category : #accessing }
+MachineTransition >> name [
+
+	^ name
+]
+
 { #category : #printing }
 MachineTransition >> printOn: aStream [
 
-	self
-		withNameDo: [ :name | 
-			aStream
-				nextPutAll: name;
-				space;
-				nextPut: $(.
-			self printSourceToDestinationOn: aStream.
-			aStream nextPut: $) ]
-		ifUnnamed: [ self printSourceToDestinationOn: aStream ]
+	aStream
+		nextPutAll: name;
+		space;
+		nextPut: $(.
+	self printSourceToDestinationOn: aStream.
+	aStream nextPut: $)
 ]
 
 { #category : #'private - printing' }
@@ -121,10 +94,4 @@ MachineTransition >> shouldBeTriggeredWithin: aContext [
 MachineTransition >> source [
 
 	^ source
-]
-
-{ #category : #accessing }
-MachineTransition >> withNameDo: aNamedCommand ifUnnamed: anUnnamedCommand [
-
-	^ nameOptional withContentDo: aNamedCommand ifUnused: anUnnamedCommand
 ]
