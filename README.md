@@ -13,8 +13,8 @@
 </p>
 
 [![GitHub release](https://img.shields.io/github/release/ba-st/Cannon.svg)](https://github.com/ba-st/Cannon/releases/latest)
-[![Build Status](https://travis-ci.org/ba-st/Cannon.svg?branch=master)](https://travis-ci.org/ba-st/Cannon)
-[![Coverage Status](https://coveralls.io/repos/github/ba-st/Cannon/badge.svg?branch=master)](https://coveralls.io/github/ba-st/Cannon?branch=master)
+[![Build Status](https://travis-ci.org/ba-st/Cannon.svg?branch=release-candidate)](https://travis-ci.org/ba-st/Cannon)
+[![Coverage Status](https://coveralls.io/repos/github/ba-st/Cannon/badge.svg?branch=release-candidate)](https://coveralls.io/github/ba-st/Cannon?branch=release-candidate)
 
 > *Name origin*: Astronomer [Annie Jump Cannon](https://en.wikipedia.org/wiki/Annie_Jump_Cannon). A cool surname from a celebrity in astronomy, since Cannon works best when combined with other BA-ST architecture projects, like [Stardust](https://github.com/ba-st/Stardust) and [Kepler](https://github.com/ba-st/Kepler).
 
