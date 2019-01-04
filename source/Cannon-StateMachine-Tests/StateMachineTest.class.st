@@ -144,12 +144,12 @@ StateMachineTest >> testInstanceCreationFailsWhenStateIsInvalid [
 	stream := WriteStream on: String new.
 	machine := self machineSpecWithAutomaticConfirmationAndSettlementWritingTo: stream.
 	workflowContext := self workflowContext.
-	
+
 	self
 		should: [ StateMachine within: workflowContext for: machine in: 'Shouldfail' ]
-		raise: InstanceCreationFailed
-		withExceptionDo: [ :exception | self assert: exception messageText equals: 'No state is named Shouldfail' ].
-	self assert: stream isEmpty
+			raise: InstanceCreationFailed
+			withMessageText: 'No state is named Shouldfail';
+		assert: stream isEmpty
 ]
 
 { #category : #tests }
@@ -179,12 +179,9 @@ StateMachineTest >> testMultipleAllowedTransitionsFromSameSourcetoSameDestinatio
 
 	self
 		should: [ transitioner startTransitionTo: 'Confirmed' ]
-		raise: TransitionFailed
-		withExceptionDo: [ :exception | 
-			self
-				assert: exception messageText
-				equals: 'Expected single transition from Pending to Confirmed but found 2.' ].
-	self assert: stream isEmpty
+			raise: TransitionFailed
+			withMessageText: 'Expected single transition from Pending to Confirmed but found 2.';
+		assert: stream isEmpty
 ]
 
 { #category : #tests }
@@ -199,12 +196,9 @@ StateMachineTest >> testTransitionFailsWhenDestionationStateIsUnreachable [
 
 	self
 		should: [ transitioner startTransitionTo: 'Settled' ]
-		raise: TransitionFailed
-		withExceptionDo: [ :exception | 
-			self
-				assert: exception messageText
-				equals: 'Expected single transition from Pending to Settled but found 0.' ].
-	self assert: stream isEmpty
+			raise: TransitionFailed
+			withMessageText: 'Expected single transition from Pending to Settled but found 0.';
+		assert: stream isEmpty
 ]
 
 { #category : #tests }
@@ -218,17 +212,14 @@ StateMachineTest >> testTransitionFailsWhenNotAllowed [
 		for: 'Bob'
 		on: Date today
 		managingTradeOf: 'Bob'
-		expectedToSettleOn: (Date today subtractDays: 1).
+		expectedToSettleOn: ( Date today subtractDays: 1 ).
 	transitioner := StateMachine within: workflowContext inInitialStateFor: machine.
 
 	self
 		should: [ transitioner startTransitionTo: 'Confirmed' ]
-		raise: TransitionFailed
-		withExceptionDo: [ :exception | 
-			self
-				assert: exception messageText
-				equals: 'Expected single transition from Pending to Confirmed but found 0.' ].
-	self assert: stream isEmpty
+			raise: TransitionFailed
+			withMessageText: 'Expected single transition from Pending to Confirmed but found 0.';
+		assert: stream isEmpty
 ]
 
 { #category : #tests }
