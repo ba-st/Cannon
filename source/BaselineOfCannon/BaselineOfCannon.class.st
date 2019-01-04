@@ -41,6 +41,12 @@ BaselineOfCannon >> baselineStateMachine: spec [
 		group: 'Tests' with: 'Cannon-StateMachine-Tests'
 ]
 
+{ #category : #accessing }
+BaselineOfCannon >> projectClass [
+
+	^ MetacelloCypressBaselineProject
+]
+
 { #category : #private }
 BaselineOfCannon >> setUpDependencies: spec [
 
