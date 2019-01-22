@@ -90,26 +90,25 @@ TransitionStarterTest >> testTransitionIsInterruptedWhenActionFails [
 	states := self threeStatesWritingTo: stream.
 	transitions := Array
 		with:
-			(MachineTransition
+			( MachineTransition
 				named: 'Tester'
 				from: states first
 				to: states last
-				allowedWhen: (TransitionConditionExample readingFrom: stream)
+				allowedWhen: ( TransitionConditionExample readingFrom: stream )
 				doing: [ :context :completeBlock | 
 					stream
 						nextPutAll: 'Action started';
 						cr.
-					ObjectNotFound signal: 'this is not an action' ]
-				triggeredBy: ManualTransitionTrigger new).
-	machineSpec := StateMachineSpecification
-		transitioningThrough: transitions
-		startingFrom: states first.
+					ObjectNotFound signal: 'this is not an action'
+					]
+				triggeredBy: ManualTransitionTrigger new ).
+	machineSpec := StateMachineSpecification transitioningThrough: transitions startingFrom: states first.
 
 	self
 		should: [ self start: transitions of: machineSpec writingTo: stream ]
-		raise: ObjectNotFound
-		withExceptionDo: [ :exception | self assert: exception messageText equals: 'this is not an action' ].
-	self assert: stream contents equals: 'Ready<r>Exiting A<r>Action started<r>' expandMacros
+			raise: ObjectNotFound
+			withMessageText: 'this is not an action';
+		assert: stream contents equals: 'Ready<r>Exiting A<r>Action started<r>' expandMacros
 ]
 
 { #category : #tests }
@@ -120,42 +119,43 @@ TransitionStarterTest >> testTransitionIsInterruptedWhenEntryToDestinationStateF
 	stream := self readyStream.
 	states := Array
 		with:
-			(MachineState
+			( MachineState
 				named: 'A'
 				onEntry: [ stream
 						nextPutAll: 'Entering A';
-						cr ]
+						cr
+					]
 				onExit: [ stream
 						nextPutAll: 'Exiting A';
-						cr ])
+						cr
+					] )
 		with:
-			(MachineState
+			( MachineState
 				named: 'B'
 				onEntry: [ stream
 						nextPutAll: 'Trying to enter B';
 						cr.
-					ObjectNotFound signal: 'this door is closed' ]
+					ObjectNotFound signal: 'this door is closed'
+					]
 				onExit: [ stream
 						nextPutAll: 'Exiting B';
-						cr ]).
+						cr
+					] ).
 	transitions := Array
 		with:
-			(self
+			( self
 				transitionNamed: 'no other'
 				from: states first
 				to: states last
-				writingTo: stream).
-	machineSpec := StateMachineSpecification
-		transitioningThrough: transitions
-		startingFrom: states first.
+				writingTo: stream ).
+	machineSpec := StateMachineSpecification transitioningThrough: transitions startingFrom: states first.
 
 	self
 		should: [ self start: transitions of: machineSpec writingTo: stream ]
-		raise: ObjectNotFound
-		withExceptionDo: [ :exception | self assert: exception messageText equals: 'this door is closed' ].
-	self
+			raise: ObjectNotFound
+			withMessageText: 'this door is closed';
 		assert: stream contents
-		equals: 'Ready<r>Exiting A<r>Inside no other<r>Trying to enter B<r>' expandMacros
+			equals: 'Ready<r>Exiting A<r>Inside no other<r>Trying to enter B<r>' expandMacros
 ]
 
 { #category : #tests }
@@ -166,40 +166,42 @@ TransitionStarterTest >> testTransitionIsInterruptedWhenExitFromSourceStateFails
 	stream := self readyStream.
 	states := Array
 		with:
-			(MachineState
+			( MachineState
 				named: 'A'
 				onEntry: [ stream
 						nextPutAll: 'Entering A';
-						cr ]
+						cr
+					]
 				onExit: [ stream
 						nextPutAll: 'Trying to exit A';
 						cr.
-					ObjectNotFound signal: 'there is no way out' ])
+					ObjectNotFound signal: 'there is no way out'
+					] )
 		with:
-			(MachineState
+			( MachineState
 				named: 'B'
 				onEntry: [ stream
 						nextPutAll: 'Entering B';
-						cr ]
+						cr
+					]
 				onExit: [ stream
 						nextPutAll: 'Exiting B';
-						cr ]).
+						cr
+					] ).
 	transitions := Array
 		with:
-			(self
+			( self
 				transitionNamed: 'no other'
 				from: states first
 				to: states last
-				writingTo: stream).
-	machineSpec := StateMachineSpecification
-		transitioningThrough: transitions
-		startingFrom: states first.
+				writingTo: stream ).
+	machineSpec := StateMachineSpecification transitioningThrough: transitions startingFrom: states first.
 
 	self
 		should: [ self start: transitions of: machineSpec writingTo: stream ]
-		raise: ObjectNotFound
-		withExceptionDo: [ :exception | self assert: exception messageText equals: 'there is no way out' ].
-	self assert: stream contents equals: 'Ready<r>Trying to exit A<r>' expandMacros
+			raise: ObjectNotFound
+			withMessageText: 'there is no way out';
+		assert: stream contents equals: 'Ready<r>Trying to exit A<r>' expandMacros
 ]
 
 { #category : #tests }
@@ -213,18 +215,13 @@ TransitionStarterTest >> testTransitionIsNotAppliedWhenPreconditionIsNotSatisfie
 		cr.
 	states := self threeStatesWritingTo: stream.
 	transitions := self sequentialTransitionsThrough: states writingTo: stream.
-	machineSpec := StateMachineSpecification
-		transitioningThrough: transitions
-		startingFrom: states first.
+	machineSpec := StateMachineSpecification transitioningThrough: transitions startingFrom: states first.
 
 	self
 		should: [ self start: transitions of: machineSpec writingTo: stream ]
-		raise: TransitionFailed
-		withExceptionDo: [ :exception | 
-			self
-				assert: exception messageText
-				equals: 'the one (A-->B) is not an allowed transition in the current context.' ].
-	self assert: stream contents equals: 'Noise<r>' expandMacros
+			raise: TransitionFailed
+			withMessageText: 'the one (A-->B) is not an allowed transition in the current context.';
+		assert: stream contents equals: 'Noise<r>' expandMacros
 ]
 
 { #category : #tests }

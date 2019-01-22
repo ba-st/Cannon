@@ -12,40 +12,61 @@ BaselineOfCannon >> baseline: spec [
 
 	<baseline>
 	spec
-		for: #common
-		do: [ self setUpDependencies: spec.
-
+		for: #pharo
+		do: [ self
+				setUpDependencies: spec;
+				baselineStateMachine: spec;
+				baselineExamples: spec.
 			spec
-				package: 'Cannon-StateMachine' with: [ spec requires: #('Grease' 'Buoy') ];
-				package: 'Cannon-StateMachine-Tests' with: [ spec requires: 'Cannon-StateMachine' ];
-				package: 'Cannon-Willow-Examples'
-					with: [ spec requires: #('Cannon-StateMachine-Tests' 'Willow') ].
-
-			spec
-				group: 'Deployment' with: #('Cannon-StateMachine');
-				group: 'Development' with: #('Cannon-StateMachine-Tests');
-				group: 'Examples' with: #('Cannon-Willow-Examples');
-				group: 'default' with: #('Deployment') ]
+				group: 'CI' with: 'Tests';
+				group: 'Development' with: #('Tests' 'Buoy-Tools')
+			]
 ]
 
-{ #category : #baselines }
+{ #category : #private }
+BaselineOfCannon >> baselineExamples: spec [
+
+	spec
+		package: 'Cannon-Willow-Examples' with: [ spec requires: #('Tests' 'Willow') ];
+		group: 'Examples' with: 'Cannon-Willow-Examples'
+]
+
+{ #category : #private }
+BaselineOfCannon >> baselineStateMachine: spec [
+
+	spec
+		package: 'Cannon-StateMachine' with: [ spec requires: #('Grease' 'Buoy-Deployment') ];
+		group: 'Deployment' with: 'Cannon-StateMachine';
+		package: 'Cannon-StateMachine-Tests' with: [ spec requires: #('Cannon-StateMachine' 'Buoy-SUnit') ];
+		group: 'Tests' with: 'Cannon-StateMachine-Tests'
+]
+
+{ #category : #accessing }
+BaselineOfCannon >> projectClass [
+
+	^ MetacelloCypressBaselineProject
+]
+
+{ #category : #private }
 BaselineOfCannon >> setUpDependencies: spec [
 
 	spec
 		baseline: 'Grease'
 		with: [ spec
-				repository: 'github://SeasideSt/Grease:v1.3.4/repository';
-				loads: #('Grease-Core') ].
-			
+				repository: 'github://SeasideSt/Grease:v1.4.1/repository';
+				loads: #('Grease-Core')
+			].
+
 	spec
-		baseline: 'Buoy'
-		with: [ spec
-				repository: 'github://ba-st/Buoy:v4/source';
-				loads: #('Deployment') ].
+		baseline: 'Buoy' with: [ spec repository: 'github://ba-st/Buoy:v5/source' ];
+		project: 'Buoy-Deployment' copyFrom: 'Buoy' with: [ spec loads: 'Deployment' ];
+		project: 'Buoy-SUnit' copyFrom: 'Buoy' with: [ spec loads: 'Dependent-SUnit-Extensions' ];
+		project: 'Buoy-Tools' copyFrom: 'Buoy' with: [ spec loads: 'Tools' ].
 
 	spec
 		baseline: 'Willow'
 		with: [ spec
 				repository: 'github://ba-st/Willow:v10/source';
-				loads: #('Willow') ]
+				loads: #('Willow')
+			]
 ]

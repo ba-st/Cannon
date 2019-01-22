@@ -169,10 +169,7 @@ StateMachineSpecificationBuilderTest >> testAtLeastOneTransitionMustBeDefined [
 	self
 		should: [ builder build ]
 		raise: InstanceCreationFailed
-		withExceptionDo: [ :error | 
-			self
-				assert: error messageText
-				equals: 'The initial state (A) must be source of at least one of the transitions.' ]
+		withMessageText: 'The initial state (A) must be source of at least one of the transitions.'
 ]
 
 { #category : #tests }
@@ -186,8 +183,7 @@ StateMachineSpecificationBuilderTest >> testInitialStateMustBeDefinedFirst [
 	self
 		should: [ builder addTransitionNamed: 'Tester' fromStateNamed: 'A' toStateNamed: 'B' ]
 		raise: InstanceCreationFailed
-		withExceptionDo:
-			[ :error | self assert: error messageText equals: 'Couldn''t find a single state named B.' ]
+		withMessageText: 'Couldn''t find a single state named B.'
 ]
 
 { #category : #tests }
@@ -202,8 +198,7 @@ StateMachineSpecificationBuilderTest >> testStatesInTransitionsMustBeDefined [
 	self
 		should: [ builder build ]
 		raise: InstanceCreationFailed
-		withExceptionDo:
-			[ :error | self assert: error messageText equals: 'Couldn''t find a single state named B.' ]
+		withMessageText: 'Couldn''t find a single state named B.'
 ]
 
 { #category : #tests }
@@ -252,10 +247,7 @@ StateMachineSpecificationBuilderTest >> testWithMoreThanOneStateTheInitialStateM
 	self
 		should: [ builder build ]
 		raise: InstanceCreationFailed
-		withExceptionDo: [ :error | 
-			self
-				assert: error messageText
-				equals: 'More than one state defined and no initial state name was indicated.' ]
+		withMessageText: 'More than one state defined and no initial state name was indicated.'
 ]
 
 { #category : #'private - processing' }
