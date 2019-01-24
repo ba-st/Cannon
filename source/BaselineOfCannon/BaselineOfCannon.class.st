@@ -66,7 +66,7 @@ BaselineOfCannon >> setUpDependencies: spec [
 	spec
 		baseline: 'Willow'
 		with: [ spec
-				repository: 'github://ba-st/Willow:v10/source';
+				repository: 'github://ba-st/Willow:v11/source';
 				loads: #('Willow')
 			]
 ]
