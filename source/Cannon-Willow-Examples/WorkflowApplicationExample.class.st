@@ -46,27 +46,19 @@ WorkflowApplicationExample >> contentView [
 WorkflowApplicationExample >> initialRequest: aRequest [
 
 	super initialRequest: aRequest.
+	identifiedContentView := self componentSupplier
+		divisionContainerWrapping: [ :html | self renderStateAndTransitionsOn: html ]
+		applying: [  ].
 	self initializeStateMachine.
-	self initializeRestartButton.
-]
-
-{ #category : #initialization }
-WorkflowApplicationExample >> initialize [
-
-	super initialize.
-	identifiedContentView := IdentifiedWebView
-		forDivNamed: 'Content'
-		containing: [ :canvas | self renderStateAndTransitionsOn: canvas ]
+	self initializeRestartButton
 ]
 
 { #category : #initialization }
 WorkflowApplicationExample >> initializeRestartButton [
 
-	restartButton := self componentSupplier
-		asynchronicButtonLabeled: 'Start again'
-		applying: [  ].
-	restartButton onTrigger
-		evaluate: [ self initializeStateMachine ];
+	restartButton := self componentSupplier asynchronicButtonLabeled: 'Start again' applying: [  ].
+	restartButton on trigger
+		serverDo: [ self initializeStateMachine ];
 		render: identifiedContentView
 ]
 
@@ -95,13 +87,16 @@ WorkflowApplicationExample >> linkForTransitionNamed: aTransitionName toStateNam
 					style
 						cursor: #pointer;
 						textDecoration: #underline;
-						color: #blue ] ].
-	link onTrigger
-		determineBehaviorByEvaluating: [ :response | 
+						color: #blue
+					]
+			].
+	link on trigger
+		serverDo: [ :request | 
 			self session
-				configure: response
+				configure: request
 				afterEvaluating: [ machine startTransitionTo: aStateName ]
-				renderingTo: identifiedContentView ].
+				renderingTo: identifiedContentView
+			].
 	^ link
 ]
 
