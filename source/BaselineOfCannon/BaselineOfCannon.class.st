@@ -27,7 +27,7 @@ BaselineOfCannon >> baseline: spec [
 BaselineOfCannon >> baselineExamples: spec [
 
 	spec
-		package: 'Cannon-Willow-Examples' with: [ spec requires: #('Tests' 'Willow') ];
+		package: 'Cannon-Willow-Examples' with: [ spec requires: #('Tests' 'Willow-Deployment') ];
 		group: 'Examples' with: 'Cannon-Willow-Examples'
 ]
 
