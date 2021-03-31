@@ -13,8 +13,11 @@
 </p>
 
 [![GitHub release](https://img.shields.io/github/release/ba-st/Cannon.svg)](https://github.com/ba-st/Cannon/releases/latest)
-[![Build Status](https://travis-ci.org/ba-st/Cannon.svg?branch=release-candidate)](https://travis-ci.org/ba-st/Cannon)
-[![Coverage Status](https://coveralls.io/repos/github/ba-st/Cannon/badge.svg?branch=release-candidate)](https://coveralls.io/github/ba-st/Cannon?branch=release-candidate)
+[![Build Status](https://github.com/ba-st/Cannon/workflows/Build/badge.svg?branch=release-candidate)](https://github.com/ba-st/Cannon/actions?query=workflow%3ABuild)
+[![Coverage Status](https://codecov.io/github/ba-st/Cannon/coverage.svg?branch=release-candidate)](https://codecov.io/gh/ba-st/Cannon/branch/release-candidate)
+[![Pharo 7.0](https://img.shields.io/badge/Pharo-7.0-informational)](https://pharo.org)
+[![Pharo 8.0](https://img.shields.io/badge/Pharo-8.0-informational)](https://pharo.org)
+[![Pharo 9.0](https://img.shields.io/badge/Pharo-9.0-informational)](https://pharo.org)
 
 > *Name origin*: Astronomer [Annie Jump Cannon](https://en.wikipedia.org/wiki/Annie_Jump_Cannon). A cool surname from a celebrity in astronomy, since Cannon works best when combined with other BA-ST architecture projects, like [Stardust](https://github.com/ba-st/Stardust) and [Kepler](https://github.com/ba-st/Kepler).
 
