@@ -103,7 +103,7 @@ StateMachineSpecificationBuilder >> onlyState [
 		enforce: [ states size = 1 ]
 		because: 'More than one state defined and no initial state name was indicated.'
 		raising: InstanceCreationFailed.
-	^ states any
+	^ states anyOne
 ]
 
 { #category : #'private - accessing' }
@@ -116,7 +116,7 @@ StateMachineSpecificationBuilder >> onlyStateNamed: initialStateName [
 		enforce: [ candidates size = 1 ]
 		because: ('Couldn''t find a single state named <1s>.' expandMacrosWith: initialStateName)
 		raising: InstanceCreationFailed.
-	^ candidates any
+	^ candidates anyOne
 ]
 
 { #category : #configuring }

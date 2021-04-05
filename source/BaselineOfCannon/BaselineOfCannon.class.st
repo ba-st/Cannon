@@ -27,7 +27,7 @@ BaselineOfCannon >> baseline: spec [
 BaselineOfCannon >> baselineExamples: spec [
 
 	spec
-		package: 'Cannon-Willow-Examples' with: [ spec requires: #('Tests' 'Willow') ];
+		package: 'Cannon-Willow-Examples' with: [ spec requires: #('Tests' 'Willow-Deployment') ];
 		group: 'Examples' with: 'Cannon-Willow-Examples'
 ]
 
@@ -53,20 +53,17 @@ BaselineOfCannon >> setUpDependencies: spec [
 	spec
 		baseline: 'Grease'
 		with: [ spec
-				repository: 'github://SeasideSt/Grease:v1.4.2/repository';
+				repository: 'github://SeasideSt/Grease:v1.7.x/repository';
 				loads: #('Grease-Core')
 			].
 
 	spec
-		baseline: 'Buoy' with: [ spec repository: 'github://ba-st/Buoy:v5/source' ];
+		baseline: 'Buoy' with: [ spec repository: 'github://ba-st/Buoy:v6' ];
 		project: 'Buoy-Deployment' copyFrom: 'Buoy' with: [ spec loads: 'Deployment' ];
 		project: 'Buoy-SUnit' copyFrom: 'Buoy' with: [ spec loads: 'Dependent-SUnit-Extensions' ];
 		project: 'Buoy-Tools' copyFrom: 'Buoy' with: [ spec loads: 'Tools' ].
 
 	spec
-		baseline: 'Willow'
-		with: [ spec
-				repository: 'github://ba-st/Willow:v11/source';
-				loads: #('Willow')
-			]
+		baseline: 'Willow' with: [ spec repository: 'github://ba-st/Willow:v14' ];
+		project: 'Willow-Deployment' copyFrom: 'Willow' with: [ spec loads: 'Deployment' ]
 ]

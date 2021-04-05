@@ -47,7 +47,7 @@ StateMachine >> evaluateTriggers [
 	candidates size > 1
 		ifTrue: [ self signalMultipleTriggersFound ].
 	candidates size = 1
-		ifTrue: [ self updateStateWhenCompleted: candidates any ]
+		ifTrue: [ self updateStateWhenCompleted: candidates anyOne ]
 ]
 
 { #category : #initialization }
@@ -87,7 +87,7 @@ StateMachine >> startTransitionTo: aStateName [
 		select: [ :transition | transition destination name = aStateName ].
 
 	candidates size = 1
-		ifTrue: [ self updateStateWhenCompleted: candidates any ]
+		ifTrue: [ self updateStateWhenCompleted: candidates anyOne ]
 		ifFalse: [ self signal: candidates size transitionsFoundTo: aStateName ]
 ]
 

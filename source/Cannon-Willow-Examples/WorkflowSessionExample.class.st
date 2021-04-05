@@ -46,14 +46,15 @@ WorkflowSessionExample >> buttonToAccept: aBlock thenRender: identifiedView [
 	| button |
 
 	button := self componentSupplier asynchronicButtonLabeled: 'Ok' applying: [  ].
-	button onTrigger
-		determineBehaviorByEvaluating: [ :response :content | 
+	button on trigger
+		with: ( JSStream on: '$("textarea").val()' )
+		serverDo: [ :request | 
 			self
-				configure: response
+				configure: request
 				toEvaluate: aBlock
-				with: content
-				thenRender: identifiedView ]
-		with: (JSStream on: '$("textarea").val()').
+				with: request parameter
+				thenRender: identifiedView
+			].
 	^ button
 ]
 
@@ -63,39 +64,36 @@ WorkflowSessionExample >> buttonToCancelThenRender: anIdentifiedView [
 	| button |
 
 	button := self componentSupplier asynchronicButtonLabeled: 'Cancel' applying: [  ].
-	self configure: button onTrigger toCloseDialogsThenRender: anIdentifiedView.
+	self configure: button on trigger toCloseDialogsThenRender: anIdentifiedView.
 	^ button
 ]
 
 { #category : #interaction }
-WorkflowSessionExample >> configure: aResponse afterEvaluating: aBlock renderingTo: anIdentifiedView [
+WorkflowSessionExample >> configure: request afterEvaluating: aBlock renderingTo: anIdentifiedView [
 
 	aBlock value.
-	interactions do: [ :interaction | interaction value: aResponse value: anIdentifiedView ].
-	aResponse onReturn render: anIdentifiedView
+	interactions do: [ :interaction | interaction value: request value: anIdentifiedView ].
+	request onRespond render: anIdentifiedView
 ]
 
 { #category : #'private - interaction' }
 WorkflowSessionExample >> configure: anInteraction toCloseDialogsThenRender: identifiedView [
 
 	^ anInteraction
-		executeOnClient: [ :script :canvas | 
-			script
-				<< (canvas jQuery with: 'dialog') remove;
-				<<
-					((canvas jQuery class: Willow classification >> #dialogContainer) children: 'script')
-						remove ];
+		userAgentDo: [ :canvas | ( canvas jQuery with: 'dialog' ) remove ];
+		userAgentDo:
+				[ :canvas | ( ( canvas jQuery class: Willow classification >> #dialogContainer ) children: 'script' ) remove ];
 		render: identifiedView
 ]
 
 { #category : #'private - interaction' }
-WorkflowSessionExample >> configure: aResponse toEvaluate: aBlock with: aModel thenRender: anIdentifiedView [
+WorkflowSessionExample >> configure: request toEvaluate: aBlock with: aModel thenRender: anIdentifiedView [
 
 	^ [ aBlock value: aModel.
-	self configure: aResponse onReturn toCloseDialogsThenRender: anIdentifiedView ]
+	self configure: request onRespond toCloseDialogsThenRender: anIdentifiedView ]
 		on: AssertionFailed
 		do: [ :aSignal | 
-			aResponse onReturn inform: aSignal messageText.
+			request onRespond inform: aSignal messageText.
 			aSignal return ]
 ]
 
@@ -149,8 +147,8 @@ WorkflowSessionExample >> loseFocus [
 WorkflowSessionExample >> openDialogStating: aMessage whenAccepted: aCompleteBlock [
 
 	interactions
-		add: [ :response :identifiedView | 
-			response onReturn
+		add: [ :request :identifiedView | 
+			request onRespond
 				open: [ :canvas | 
 					canvas dialog
 						apply: [ :theDialog | self dialogCommandsFor: theDialog ];

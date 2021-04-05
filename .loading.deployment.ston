@@ -3,14 +3,11 @@ SmalltalkCISpec {
     SCIMetacelloLoadSpec {
       #baseline : 'Cannon',
       #directory : 'source',
-      #load : [ 'CI' ],
+      #load : [ 'Deployment' ],
       #platforms : [  #pharo ]
     }
   ],
   #testing : {
-    #coverage : {
-      #packages : [ 'Cannon*' ],
-      #format: #lcov
-    }
+    #failOnZeroTests : false
   }
 }

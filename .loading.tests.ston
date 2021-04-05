@@ -3,7 +3,7 @@ SmalltalkCISpec {
     SCIMetacelloLoadSpec {
       #baseline : 'Cannon',
       #directory : 'source',
-      #load : [ 'CI' ],
+      #load : [ 'Tests' ],
       #platforms : [  #pharo ]
     }
   ],
