@@ -4,7 +4,6 @@
 
 Cannon is a State Machine implementation for Smalltalk.
 
-
 [![Unit Tests](https://github.com/ba-st/Cannon/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/ba-st/Cannon/actions/workflows/unit-tests.yml/badge.svg)
 [![Coverage Status](https://codecov.io/github/ba-st/Cannon/coverage.svg?branch=release-candidate)](https://codecov.io/gh/ba-st/Cannon/branch/release-candidate)
 [![Baseline Groups](https://github.com/ba-st/Cannon/actions/workflows/loading-groups.yml/badge.svg)](https://github.com/ba-st/Cannon/actions/workflows/loading-groups.yml)
@@ -43,4 +42,4 @@ To load the project in a Pharo image follow this [instructions](docs/how-to/how-
 Check the [Contribution Guidelines](CONTRIBUTING.md)
 
 ---
-<small><a href="https://icons8.com">Icon pack by Icons8</a></small>
+> [*Icon pack by Icons8*](https://icons8.com)
