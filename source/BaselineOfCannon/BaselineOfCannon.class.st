@@ -53,7 +53,7 @@ BaselineOfCannon >> setUpDependencies: spec [
 	spec
 		baseline: 'Grease'
 		with: [ spec
-				repository: 'github://SeasideSt/Grease:v1.7.x/repository';
+				repository: 'github://SeasideSt/Grease:master/repository';
 				loads: #('Grease-Core')
 			].
 
