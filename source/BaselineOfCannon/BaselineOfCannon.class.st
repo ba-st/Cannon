@@ -64,6 +64,6 @@ BaselineOfCannon >> setUpDependencies: spec [
 		project: 'Buoy-Tools' copyFrom: 'Buoy' with: [ spec loads: 'Tools' ].
 
 	spec
-		baseline: 'Willow' with: [ spec repository: 'github://ba-st/Willow:v14' ];
+		baseline: 'Willow' with: [ spec repository: 'github://ba-st/Willow:v15' ];
 		project: 'Willow-Deployment' copyFrom: 'Willow' with: [ spec loads: 'Deployment' ]
 ]
